@@ -42,17 +42,20 @@ public class GameManager : MonoBehaviour
     void OpenPause()
     {
         pauseMenu.gameObject.SetActive(true);
+        Time.timeScale = 0;
         paused = true;
     }
 
     public void ClosePause()
     {
         pauseMenu.gameObject.SetActive(false);
+        Time.timeScale = 1;
         paused = false;
     }
 
     public void MainMenu()
     {
+        Time.timeScale = 1;
         SceneManager.LoadScene("MainMenu");
     }
 }
