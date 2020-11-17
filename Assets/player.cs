@@ -45,13 +45,13 @@ public class player : MonoBehaviour
                 velocity = - max_velocity;
         }
 
-        if (turn && Time.timeScale >  0)
+      /*  if (turn && Time.timeScale >  0)
         {
             if (leftKey)
                 transform.Rotate(new Vector3(0.0f, - turn_speed, 0.0f));
             if (rightKey)
                 transform.Rotate(new Vector3(0.0f, turn_speed, 0.0f));
-        }
+        }*/
     }
 
     // Start is called before the first frame update
