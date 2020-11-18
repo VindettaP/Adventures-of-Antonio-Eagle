@@ -193,12 +193,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'Lol you think I made anything
-
-    lmaooooooooooooooooooooooooooooooooo
-
-    (Click
-    on popup to close)'
+  m_Text: Will be implemented
 --- !u!222 &21152966
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1851,9 +1846,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'So far just me
-
-    (Click on popup to close)'
+  m_Text: Us
 --- !u!222 &1466827995
 CanvasRenderer:
   m_ObjectHideFlags: 0

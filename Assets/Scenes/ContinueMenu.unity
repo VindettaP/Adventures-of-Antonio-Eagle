@@ -664,7 +664,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Saving/Loading to be implemented later :^)
+  m_Text: Saving/Loading to be implemented later
 --- !u!222 &1579528022
 CanvasRenderer:
   m_ObjectHideFlags: 0
