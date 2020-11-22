@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Security.Cryptography;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -13,7 +12,7 @@ public class player : MonoBehaviour
     public float walking_velocity = 5f;
     public float velocity;
     public float max_velocity;
-    public float acceleration = 0.3f;
+    public float acceleration = 10.0f;
     public float turn_speed = 0.4f;
 
     internal string state;
@@ -30,7 +29,7 @@ public class player : MonoBehaviour
 
     // tiny helper to save time, if forward is true update forwards, else backwards
     // if turn is true, update rotation, if not do not
-    void VelocityUpdate(bool forward, bool turn)
+    void VelocityUpdate(bool forward)
     {
         if (forward)
         {
@@ -44,14 +43,6 @@ public class player : MonoBehaviour
             if (velocity < - max_velocity)
                 velocity = - max_velocity;
         }
-
-      /*  if (turn && Time.timeScale >  0)
-        {
-            if (leftKey)
-                transform.Rotate(new Vector3(0.0f, - turn_speed, 0.0f));
-            if (rightKey)
-                transform.Rotate(new Vector3(0.0f, turn_speed, 0.0f));
-        }*/
     }
 
     // Start is called before the first frame update
@@ -101,44 +92,91 @@ public class player : MonoBehaviour
         {
             case "idle":
                 animation_controller.SetInteger("state", 0);
-                max_velocity = 0f;
-                VelocityUpdate(false, true);
+                max_velocity = 0.75f * walking_velocity;
+                VelocityUpdate(false);
                 break;
             case "forwardWalk":
                 animation_controller.SetInteger("state", 1);
                 max_velocity = walking_velocity;
-                VelocityUpdate(true, true);
+                VelocityUpdate(true);
                 break;
             case "backwardWalk":
-                                animation_controller.SetInteger("state", 2);
+                animation_controller.SetInteger("state", 2);
                 max_velocity = 0.75f * walking_velocity;
-                VelocityUpdate(false, true);
+                VelocityUpdate(false);
                 break;
             case "jump":
                 animation_controller.SetInteger("state", 4);
                 max_velocity = walking_velocity;
                 if (upKey)
-                    VelocityUpdate(true, true);
+                    VelocityUpdate(true);
                 else if (downKey)
-                    VelocityUpdate(false, true);
+                    VelocityUpdate(false);
                 else
                 {
-                    max_velocity = 0;
-                    VelocityUpdate(true, true);
+                    max_velocity = walking_velocity;
+                    VelocityUpdate(true);
                 }
                 break;
             case "run":
                 animation_controller.SetInteger("state", 3);
                 max_velocity = 2.0f * walking_velocity;
-                VelocityUpdate(true, true);
+                VelocityUpdate(true);
                 break;
             default:
                 break;
         }
 
-        // you will use the movement direction and velocity in Turret.cs for deflection shooting 
-        float xdirection = Mathf.Sin(Mathf.Deg2Rad * transform.rotation.eulerAngles.y);
-        float zdirection = Mathf.Cos(Mathf.Deg2Rad * transform.rotation.eulerAngles.y);
+        // update movement direction based on keys
+        float xdirection = 0.0f;
+        float zdirection = 0.0f;
+        if (upKey || downKey)
+        {
+            // case where no strafing, go straight, also do this if both keys are held
+            xdirection = Mathf.Sin(Mathf.Deg2Rad * transform.rotation.eulerAngles.y);
+            zdirection = Mathf.Cos(Mathf.Deg2Rad * transform.rotation.eulerAngles.y);
+        }
+        if (leftKey && !rightKey && (upKey || downKey))
+        {
+            // strafing left case
+            if (upKey)
+            {
+                xdirection = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y - 45.0f));
+                zdirection = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y - 45.0f));
+            }
+            else if (downKey)
+            {
+                xdirection = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 45.0f));
+                zdirection = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 45.0f));
+            }
+        }
+        else if (rightKey && !leftKey && (upKey || downKey))
+        {
+            // strafing right case
+            if (upKey)
+            {
+                xdirection = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 45.0f));
+                zdirection = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 45.0f));
+            }
+            else if (downKey)
+            {
+                xdirection = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y - 45.0f));
+                zdirection = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y - 45.0f));
+            }
+        }
+        else if (leftKey && !rightKey)
+        {
+            // moving left case
+            xdirection = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 90.0f));
+            zdirection = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 90.0f));
+        }
+        else if (rightKey && !leftKey)
+        {
+            // moving right case
+            xdirection = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y - 90.0f));
+            zdirection = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y - 90.0f));
+        }
+
         movement_direction = new Vector3(xdirection, 0.0f, zdirection);
 
         character_controller.Move(movement_direction * velocity * Time.deltaTime);

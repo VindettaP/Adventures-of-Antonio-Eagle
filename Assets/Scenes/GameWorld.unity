@@ -479,7 +479,7 @@ AudioListener:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 569659956}
-  m_Enabled: 1
+  m_Enabled: 0
 --- !u!20 &569659960
 Camera:
   m_ObjectHideFlags: 0
@@ -905,7 +905,7 @@ MonoBehaviour:
   walking_velocity: 10
   velocity: 0
   max_velocity: 0
-  acceleration: 0.3
+  acceleration: 10
   turn_speed: 0.4
 --- !u!1 &1594992980
 GameObject:
