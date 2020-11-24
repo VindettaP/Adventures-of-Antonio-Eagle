@@ -1288,7 +1288,7 @@ MonoBehaviour:
   velocity: 0
   max_velocity: 0
   acceleration: 10
-  turn_speed: 5
+  turn_speed: 500
   state: 
 --- !u!143 &1754091971
 CharacterController:

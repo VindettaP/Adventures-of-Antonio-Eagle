@@ -199,13 +199,7 @@ public class player : MonoBehaviour
             zdirection = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 90.0f));
             dir = "west";
         }
-
-        movement_direction = new Vector3(xdirection, 0.0f, zdirection);
-        //float newY = RotationUpdate(dir);
         RotationUpdate(dir, xdirection, zdirection);
-        //playerModel.transform.eulerAngles = new Vector3(0, newY, 0);
-
-        //character_controller.Move(movement_direction * velocity * Time.deltaTime);
     }
 
 
@@ -214,7 +208,6 @@ public class player : MonoBehaviour
     void RotationUpdate(string dir, float xDir, float zDir)
     {
         float target = 0;
-        float result = 0;
         switch (dir)
         {
             case "north":
@@ -248,25 +241,30 @@ public class player : MonoBehaviour
         target = target % 360;
         movement_direction = new Vector3(xDir, 0.0f, zDir);
 
-        if ((target + 20) > playerModel.transform.rotation.eulerAngles.y && (target - 20) < playerModel.transform.rotation.eulerAngles.y)
+        if (state != "jump")
         {
-            playerModel.transform.eulerAngles = new Vector3(0, target, 0);
-            character_controller.Move(movement_direction * velocity * Time.deltaTime);
-        }
-        else
-        {
-            if ((target - playerModel.transform.rotation.eulerAngles.y + 360) % 360 > 180)
+            if ((target + 20) > playerModel.transform.rotation.eulerAngles.y && (target - 20) < playerModel.transform.rotation.eulerAngles.y)
             {
-                playerModel.transform.Rotate(new Vector3(0, - turn_speed * Time.deltaTime, 0));
-                character_controller.Move(0.1f * movement_direction * velocity * Time.deltaTime);
+                playerModel.transform.eulerAngles = new Vector3(0, target, 0);
+                character_controller.Move(movement_direction * velocity * Time.deltaTime);
             }
             else
             {
-                playerModel.transform.Rotate(new Vector3(0, turn_speed * Time.deltaTime, 0));
-                character_controller.Move(0.1f * movement_direction * velocity * Time.deltaTime);
+                if ((target - playerModel.transform.rotation.eulerAngles.y + 360) % 360 > 180)
+                {
+                    playerModel.transform.Rotate(new Vector3(0, -turn_speed * Time.deltaTime, 0));
+                    character_controller.Move(0.3f * movement_direction * velocity * Time.deltaTime);
+                }
+                else
+                {
+                    playerModel.transform.Rotate(new Vector3(0, turn_speed * Time.deltaTime, 0));
+                    character_controller.Move(0.3f * movement_direction * velocity * Time.deltaTime);
+                }
             }
         }
-        Debug.Log((target - playerModel.transform.rotation.eulerAngles.y + 360) % 360);
-        
+        else
+        {
+            character_controller.Move(10 * movement_direction * velocity * Time.deltaTime);
+        }
     }
 }
