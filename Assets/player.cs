@@ -13,7 +13,7 @@ public class player : MonoBehaviour
     public float velocity;
     public float max_velocity;
     public float acceleration = 10.0f;
-    public float turn_speed = 1.5f;
+    public float turn_speed = 500f;
 
     public string state;
 
@@ -201,48 +201,72 @@ public class player : MonoBehaviour
         }
 
         movement_direction = new Vector3(xdirection, 0.0f, zdirection);
-        float newY = RotationUpdate(dir);
-        playerModel.transform.eulerAngles = new Vector3(0, newY, 0);
+        //float newY = RotationUpdate(dir);
+        RotationUpdate(dir, xdirection, zdirection);
+        //playerModel.transform.eulerAngles = new Vector3(0, newY, 0);
 
-        character_controller.Move(movement_direction * velocity * Time.deltaTime);
+        //character_controller.Move(movement_direction * velocity * Time.deltaTime);
     }
 
 
     // helper to rotate player model
     // if turn is true, update rotation, if not do not
-    float RotationUpdate(string dir)
+    void RotationUpdate(string dir, float xDir, float zDir)
     {
-        float result;
+        float target = 0;
+        float result = 0;
         switch (dir)
         {
             case "north":
-                result = transform.rotation.eulerAngles.y;
+                target = transform.rotation.eulerAngles.y;
                 break;
             case "south":
-                result = transform.rotation.eulerAngles.y + 180;
+                target = transform.rotation.eulerAngles.y + 180;
                 break;
             case "east":
-                result = transform.rotation.eulerAngles.y - 90;
+                target = transform.rotation.eulerAngles.y + 270;
                 break;
             case "west":
-                result = transform.rotation.eulerAngles.y + 90;
+                target = transform.rotation.eulerAngles.y + 90;
                 break;
             case "northEast":
-                result = transform.rotation.eulerAngles.y - 45;
+                target = transform.rotation.eulerAngles.y + 315;
                 break;
             case "northWest":
-                result = transform.rotation.eulerAngles.y + 45;
+                target = transform.rotation.eulerAngles.y + 45;
                 break;
             case "southEast":
-                result = transform.rotation.eulerAngles.y - 135;
+                target = transform.rotation.eulerAngles.y + 225;
                 break;
             case "southWest":
-                result = transform.rotation.eulerAngles.y + 135;
+                target = transform.rotation.eulerAngles.y + 135;
                 break;
             default:
-                result = transform.rotation.eulerAngles.y;
+                target = transform.rotation.eulerAngles.y;
                 break;
         }
-        return result;
+        target = target % 360;
+        movement_direction = new Vector3(xDir, 0.0f, zDir);
+
+        if ((target + 20) > playerModel.transform.rotation.eulerAngles.y && (target - 20) < playerModel.transform.rotation.eulerAngles.y)
+        {
+            playerModel.transform.eulerAngles = new Vector3(0, target, 0);
+            character_controller.Move(movement_direction * velocity * Time.deltaTime);
+        }
+        else
+        {
+            if ((target - playerModel.transform.rotation.eulerAngles.y + 360) % 360 > 180)
+            {
+                playerModel.transform.Rotate(new Vector3(0, - turn_speed * Time.deltaTime, 0));
+                character_controller.Move(0.1f * movement_direction * velocity * Time.deltaTime);
+            }
+            else
+            {
+                playerModel.transform.Rotate(new Vector3(0, turn_speed * Time.deltaTime, 0));
+                character_controller.Move(0.1f * movement_direction * velocity * Time.deltaTime);
+            }
+        }
+        Debug.Log((target - playerModel.transform.rotation.eulerAngles.y + 360) % 360);
+        
     }
 }
