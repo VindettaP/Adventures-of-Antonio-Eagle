@@ -84,7 +84,7 @@ public class player : MonoBehaviour
          * 4 = jumping
         */
 
-        if (state != "jump" && spaceDown)
+        if (spaceDown && state != "jump")
             state = "jump";
         else if (shiftDown && (leftKey || rightKey || upKey || downKey))
             state = "run";
