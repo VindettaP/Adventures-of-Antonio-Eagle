@@ -878,7 +878,7 @@ CapsuleCollider:
   m_GameObject: {fileID: 1360280431}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
-  m_Enabled: 1
+  m_Enabled: 0
   m_Radius: 0.3
   m_Height: 1.75
   m_Direction: 1
@@ -919,6 +919,7 @@ MonoBehaviour:
   max_velocity: 0
   acceleration: 10
   turn_speed: 1
+  gravity: 9.8
   state: 
 --- !u!1 &1594992980
 GameObject:
@@ -1181,9 +1182,9 @@ GameObject:
   - component: {fileID: 1754091969}
   - component: {fileID: 1754091968}
   - component: {fileID: 1754091967}
-  - component: {fileID: 1754091966}
   - component: {fileID: 1754091970}
   - component: {fileID: 1754091971}
+  - component: {fileID: 1754091972}
   m_Layer: 0
   m_Name: PlayerBody
   m_TagString: Untagged
@@ -1191,20 +1192,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!136 &1754091966
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1754091965}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  m_Radius: 0.5
-  m_Height: 2
-  m_Direction: 1
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &1754091967
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1253,7 +1240,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1754091965}
-  m_Mesh: {fileID: 10208, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!4 &1754091969
 Transform:
   m_ObjectHideFlags: 0
@@ -1284,11 +1271,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   movement_direction: {x: 0, y: 0, z: 0}
-  walking_velocity: 5
+  walking_velocity: 10
   velocity: 0
   max_velocity: 0
   acceleration: 10
   turn_speed: 500
+  gravity: 9.8
   state: 
 --- !u!143 &1754091971
 CharacterController:
@@ -1307,7 +1295,23 @@ CharacterController:
   m_StepOffset: 0.3
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
-  m_Center: {x: 0, y: 0.85, z: 0}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!54 &1754091972
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1754091965}
+  serializedVersion: 2
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &1879114047
 GameObject:
   m_ObjectHideFlags: 0

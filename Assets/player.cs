@@ -14,6 +14,7 @@ public class player : MonoBehaviour
     public float max_velocity;
     public float acceleration = 10.0f;
     public float turn_speed = 500f;
+    public float gravity = 9.8f;
 
     public string state;
 
@@ -27,6 +28,8 @@ public class player : MonoBehaviour
     private bool ctrlDown;
     private bool shiftDown;
     private bool spaceDown;
+    private bool turning;
+    private bool grounded;
 
     // tiny helper to save time, if forward is true update forwards, else backwards
     // if turn is true, update rotation, if not do not
@@ -55,11 +58,15 @@ public class player : MonoBehaviour
         velocity = 0.0f;
         state = "idle";
         playerModel = GameObject.Find("PlayerModel");
+        turning = false;
     }
 
     // Update is called once per frame
     void Update()
     {
+        // Check if player model is grounded
+        grounded = IsGrounded();
+
         // Check all keys first for convenience
         upKey = Input.GetKey("w") || Input.GetKey(KeyCode.UpArrow);
         downKey = Input.GetKey("s") || Input.GetKey(KeyCode.DownArrow);
@@ -73,26 +80,16 @@ public class player : MonoBehaviour
         /* in animation controller, states controlled by int
          * 0 = idle
          * 1 = walk forward
-         * 2 = walk backward
          * 3 = run forward
          * 4 = jumping
         */
 
         if (state != "jump" && spaceDown)
             state = "jump";
-        else if (upKey && shiftDown)
+        else if (shiftDown && (leftKey || rightKey || upKey || downKey))
             state = "run";
-        else if (leftKey || rightKey)
-        {
-            if (downKey)
-                state = "backwardWalk";
-            else
-                state = "forwardWalk";
-        }
-        else if (upKey)
+        else if (leftKey || rightKey || upKey || downKey)
             state = "forwardWalk";
-        else if (downKey)
-            state = "backwardWalk";
         else
             state = "idle";
 
@@ -101,31 +98,18 @@ public class player : MonoBehaviour
         {
             case "idle":
                 animation_controller.SetInteger("state", 0);
-                max_velocity = walking_velocity;
-                VelocityUpdate(false);
+                max_velocity = 0.0f;
+                VelocityUpdate(true);
                 break;
             case "forwardWalk":
                 animation_controller.SetInteger("state", 1);
                 max_velocity = walking_velocity;
                 VelocityUpdate(true);
                 break;
-            case "backwardWalk":
-                animation_controller.SetInteger("state", 2);
-                max_velocity = walking_velocity;
-                VelocityUpdate(false);
-                break;
             case "jump":
                 animation_controller.SetInteger("state", 4);
                 max_velocity = walking_velocity;
-                if (upKey)
-                    VelocityUpdate(true);
-                else if (downKey)
-                    VelocityUpdate(false);
-                else
-                {
-                    max_velocity = walking_velocity;
-                    VelocityUpdate(true);
-                }
+                VelocityUpdate(true);
                 break;
             case "run":
                 animation_controller.SetInteger("state", 3);
@@ -142,30 +126,24 @@ public class player : MonoBehaviour
         // dir is the direction to rotate based on movement
 
         string dir = "north";
-        if (upKey || downKey)
+        if ((upKey || downKey) && (!rightKey && !leftKey))
         {
             // case where no strafing, go straight, also do this if both keys are held
-            xdirection = Mathf.Sin(Mathf.Deg2Rad * transform.rotation.eulerAngles.y);
-            zdirection = Mathf.Cos(Mathf.Deg2Rad * transform.rotation.eulerAngles.y);
             if (downKey)
                 dir = "south";
             else
                 dir = "north";
         }
-        if (leftKey && !rightKey && (upKey || downKey))
+        else if (leftKey && !rightKey && (upKey || downKey))
         {
             // strafing left case
             if (upKey)
             {
-                xdirection = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y - 45.0f));
-                zdirection = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y - 45.0f));
                 dir = "northEast";
 
             }
             else if (downKey)
             {
-                xdirection = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 45.0f));
-                zdirection = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 45.0f));
                 dir = "southEast";
             }
         }
@@ -174,40 +152,61 @@ public class player : MonoBehaviour
             // strafing right case
             if (upKey)
             {
-                xdirection = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 45.0f));
-                zdirection = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 45.0f));
                 dir = "northWest";
             }
             else if (downKey)
             {
-                xdirection = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y - 45.0f));
-                zdirection = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y - 45.0f));
                 dir = "southWest";
             }
         }
         else if (leftKey && !rightKey)
         {
             // moving left case
-            xdirection = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y - 90.0f));
-            zdirection = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y - 90.0f));
             dir = "east";
         }
         else if (rightKey && !leftKey)
         {
             // moving right case
-            xdirection = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 90.0f));
-            zdirection = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 90.0f));
             dir = "west";
         }
-        RotationUpdate(dir, xdirection, zdirection);
+        else
+        {
+            dir = "none";
+        }
+
+        xdirection = Mathf.Sin(Mathf.Deg2Rad * playerModel.transform.rotation.eulerAngles.y);
+        zdirection = Mathf.Cos(Mathf.Deg2Rad * playerModel.transform.rotation.eulerAngles.y);
+
+        RotationUpdate(dir);
+        PositionUpdate(xdirection, zdirection);
     }
 
+    // uses a short raycast down to see if player model is on the ground
+    bool IsGrounded()
+    {
+        return Physics.Raycast(playerModel.transform.position, -Vector3.up, 0.9f);
+    }
+
+    void PositionUpdate(float xDir, float zDir)
+    {
+        movement_direction = new Vector3(xDir, 0.0f, zDir);
+        movement_direction.Normalize();
+
+        if (!grounded)
+            character_controller.Move(new Vector3(0, -gravity, 0) * Time.deltaTime);
+
+        if (turning)
+            character_controller.Move(0.3f * movement_direction * velocity * Time.deltaTime);
+        else
+            character_controller.Move(movement_direction * velocity * Time.deltaTime);
+    }
 
     // helper to rotate player model
     // if turn is true, update rotation, if not do not
-    void RotationUpdate(string dir, float xDir, float zDir)
+    void RotationUpdate(string dir)
     {
         float target = 0;
+        bool dontMove = false;
         switch (dir)
         {
             case "north":
@@ -234,37 +233,36 @@ public class player : MonoBehaviour
             case "southWest":
                 target = transform.rotation.eulerAngles.y + 135;
                 break;
+            case "none":
+                dontMove = true;
+                break;
             default:
                 target = transform.rotation.eulerAngles.y;
                 break;
         }
         target = target % 360;
-        movement_direction = new Vector3(xDir, 0.0f, zDir);
 
-        if (state != "jump")
+
+        turning = false;
+
+        if (state != "jump" && !dontMove)
         {
-            if ((target + 20) > playerModel.transform.rotation.eulerAngles.y && (target - 20) < playerModel.transform.rotation.eulerAngles.y)
+            if ((target + 10) > playerModel.transform.rotation.eulerAngles.y && (target - 0) < playerModel.transform.rotation.eulerAngles.y)
             {
                 playerModel.transform.eulerAngles = new Vector3(0, target, 0);
-                character_controller.Move(movement_direction * velocity * Time.deltaTime);
             }
             else
             {
+                turning = true;
                 if ((target - playerModel.transform.rotation.eulerAngles.y + 360) % 360 > 180)
                 {
                     playerModel.transform.Rotate(new Vector3(0, -turn_speed * Time.deltaTime, 0));
-                    character_controller.Move(0.3f * movement_direction * velocity * Time.deltaTime);
                 }
                 else
                 {
                     playerModel.transform.Rotate(new Vector3(0, turn_speed * Time.deltaTime, 0));
-                    character_controller.Move(0.3f * movement_direction * velocity * Time.deltaTime);
                 }
             }
-        }
-        else
-        {
-            character_controller.Move(10 * movement_direction * velocity * Time.deltaTime);
         }
     }
 }
