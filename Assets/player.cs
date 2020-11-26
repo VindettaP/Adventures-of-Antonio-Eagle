@@ -15,6 +15,8 @@ public class player : MonoBehaviour
     public float acceleration = 10.0f;
     public float turn_speed = 500f;
     public float gravity = 9.8f;
+    public float grappleSpeed = 2.0f;
+    public float grappleMinDist = 3f;
 
     public string state;
 
@@ -30,26 +32,11 @@ public class player : MonoBehaviour
     private bool spaceDown;
     private bool turning;
     private bool grounded;
+    private Grapple grappleScript;
 
     private bool tabDown;
     public GameObject fPerson, tPerson;
-    // tiny helper to save time, if forward is true update forwards, else backwards
-    // if turn is true, update rotation, if not do not
-    void VelocityUpdate(bool forward)
-    {
-        if (forward)
-        {
-            velocity += acceleration;
-            if (velocity > max_velocity)
-                velocity = max_velocity;
-        }
-        else
-        {
-            velocity -= acceleration;
-            if (velocity < - max_velocity)
-                velocity = - max_velocity;
-        }
-    }
+    
 
     // Start is called before the first frame update
     void Start()
@@ -61,6 +48,7 @@ public class player : MonoBehaviour
         state = "idle";
         playerModel = GameObject.Find("PlayerModel");
         turning = false;
+        grappleScript = GameObject.Find("Grapple").GetComponent<Grapple>();
     }
 
     // Update is called once per frame
@@ -94,9 +82,12 @@ public class player : MonoBehaviour
         else{
             tPerson.SetActive(true);
             fPerson.SetActive(false);
+            grappleScript.StopGrapple();
         }
 
-        if (spaceDown && state != "jump")
+        if (grappleScript.grappling)
+            state = "grappling";
+        else if (spaceDown && state != "jump")
             state = "jump";
         else if (shiftDown && (leftKey || rightKey || upKey || downKey))
             state = "run";
@@ -128,10 +119,16 @@ public class player : MonoBehaviour
                 max_velocity = 2.0f * walking_velocity;
                 VelocityUpdate(true);
                 break;
+            case "grappling":
+                max_velocity = walking_velocity;
+                VelocityUpdate(true);
+                break;
             default:
                 break;
         }
 
+
+        //------------------------Grounded movement update------------------------------------------
         // update movement direction based on keys
         float xdirection = 0.0f;
         float zdirection = 0.0f;
@@ -150,26 +147,17 @@ public class player : MonoBehaviour
         {
             // strafing left case
             if (upKey)
-            {
                 dir = "northEast";
-
-            }
             else if (downKey)
-            {
                 dir = "southEast";
-            }
         }
         else if (rightKey && !leftKey && (upKey || downKey))
         {
             // strafing right case
             if (upKey)
-            {
                 dir = "northWest";
-            }
             else if (downKey)
-            {
                 dir = "southWest";
-            }
         }
         else if (leftKey && !rightKey)
         {
@@ -182,21 +170,69 @@ public class player : MonoBehaviour
             dir = "west";
         }
         else
-        {
             dir = "none";
-        }
 
         xdirection = Mathf.Sin(Mathf.Deg2Rad * playerModel.transform.rotation.eulerAngles.y);
         zdirection = Mathf.Cos(Mathf.Deg2Rad * playerModel.transform.rotation.eulerAngles.y);
 
         RotationUpdate(dir);
         PositionUpdate(xdirection, zdirection);
+
+        //------------------------End of Grounded movement update------------------------------------------
+
+        //------------------------------Grapple movement update--------------------------------------------
+
     }
 
     // uses a short raycast down to see if player model is on the ground
     bool IsGrounded()
     {
-        return Physics.Raycast(playerModel.transform.position, -Vector3.up, 0.9f);
+        return Physics.Raycast(playerModel.transform.position, -Vector3.up, 0.017f);
+    }
+
+    void MoveTowardsGrapple()
+    {
+        var offset = grappleScript.grapplePoint - playerModel.transform.position;
+        float distance = offset.magnitude;
+        Debug.Log(offset + ", " + distance);
+        if (offset.magnitude > grappleMinDist)
+        {
+            //offset = offset.normalized * grappleSpeed;
+            offset = offset.normalized * (distance);
+            character_controller.Move(offset * Time.deltaTime);
+        }
+    }
+
+    // tiny helper to save time, if forward is true update forwards, else backwards
+    // if turn is true, update rotation, if not do not
+    void VelocityUpdate(bool forward)
+    {
+        if (upKey || downKey || leftKey || rightKey)
+        {
+            if (forward)
+            {
+                velocity += acceleration;
+                if (velocity > max_velocity)
+                    velocity = max_velocity;
+            }
+            else
+            {
+                velocity -= acceleration;
+                if (velocity < -max_velocity)
+                    velocity = -max_velocity;
+            }
+        }
+        else
+        {
+            if (velocity < 0)
+            {
+                velocity += acceleration;
+            }
+            if (velocity > 0)
+            {
+                velocity -= acceleration;
+            }
+        }
     }
 
     void PositionUpdate(float xDir, float zDir)
@@ -204,13 +240,24 @@ public class player : MonoBehaviour
         movement_direction = new Vector3(xDir, 0.0f, zDir);
         movement_direction.Normalize();
 
-        if (!grounded)
-            character_controller.Move(new Vector3(0, -gravity, 0) * Time.deltaTime);
+        // Handle Gravity
+        character_controller.Move(new Vector3(0, -gravity, 0) * Time.deltaTime);
 
-        if (turning)
-            character_controller.Move(0.3f * movement_direction * velocity * Time.deltaTime);
-        else
-            character_controller.Move(movement_direction * velocity * Time.deltaTime);
+
+        // Handle character input
+        if (upKey || downKey || leftKey || rightKey)
+        {
+            if (turning)
+                character_controller.Move(0.3f * movement_direction * velocity * Time.deltaTime);
+            else
+                character_controller.Move(movement_direction * velocity * Time.deltaTime);
+        }
+
+        // Handle grappling gun
+        if (state == "grappling")
+        {
+            MoveTowardsGrapple();
+        }
     }
 
     // helper to rotate player model
