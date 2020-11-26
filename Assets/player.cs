@@ -10,13 +10,16 @@ public class player : MonoBehaviour
 {
     public Vector3 movement_direction;
     public float walking_velocity = 5f;
-    public float velocity;
+    public Vector3 velocity;
     public float max_velocity;
     public float acceleration = 10.0f;
     public float turn_speed = 500f;
     public float gravity = 9.8f;
     public float grappleSpeed = 2.0f;
     public float grappleMinDist = 3f;
+    public float jumpLength = 1.0f;
+    public float jumpStrength = 50f;
+    public float timeBetweenJumps = 1f;
 
     public string state;
 
@@ -33,6 +36,9 @@ public class player : MonoBehaviour
     private bool turning;
     private bool grounded;
     private Grapple grappleScript;
+    private float jumpTime = 0;
+    private bool jumping;
+    private float jumpCooldown = 0;
 
     private bool tabDown;
     public GameObject fPerson, tPerson;
@@ -44,10 +50,13 @@ public class player : MonoBehaviour
         animation_controller = GetComponentInChildren<Animator>();
         character_controller = GetComponent<CharacterController>();
         movement_direction = new Vector3(0.0f, 0.0f, 0.0f);
-        velocity = 0.0f;
+        velocity = new Vector3(0, 0, 0);
         state = "idle";
         playerModel = GameObject.Find("PlayerModel");
         turning = false;
+        jumping = false;
+        jumpTime = jumpLength;
+        jumpCooldown = timeBetweenJumps;
         grappleScript = GameObject.Find("Grapple").GetComponent<Grapple>();
     }
 
@@ -56,6 +65,13 @@ public class player : MonoBehaviour
     {
         // Check if player model is grounded
         grounded = IsGrounded();
+
+        //Debug.Log("Grounded: " + grounded + " Jumping: " + jumping + " JumpTime: " + jumpTime + " State: " + state + " Velocity: " + velocity);
+
+        if (jumping)
+            jumpTime -= Time.deltaTime; // decrease time in jump while we are jumping
+        else
+            jumpCooldown -= Time.deltaTime;
 
         // Check all keys first for convenience
         upKey = Input.GetKey("w") || Input.GetKey(KeyCode.UpArrow);
@@ -73,6 +89,8 @@ public class player : MonoBehaviour
          * 1 = walk forward
          * 3 = run forward
          * 4 = jumping
+         * 5 = mid air
+         * 6 = landing
         */
         //Changes between regular camera to the other camera 
         if(tabDown){
@@ -87,8 +105,21 @@ public class player : MonoBehaviour
 
         if (grappleScript.grappling)
             state = "grappling";
-        else if (spaceDown && state != "jump")
-            state = "jump";
+        else if (jumpTime < 0 && jumping && !grounded) // still in midair post jump
+            state = "midAir";
+        else if (jumpTime < 0 && grounded && jumping) // landed from a jump
+        {
+            state = "landing";
+            jumping = false;
+            jumpCooldown = timeBetweenJumps;
+            jumpTime = jumpLength;
+        }
+        else if (spaceDown && !jumping && jumpCooldown < 0)
+        {
+            state = "jumpStart";
+            jumping = true;
+            jumpTime = jumpLength; // reset jump timer
+        }
         else if (shiftDown && (leftKey || rightKey || upKey || downKey))
             state = "run";
         else if (leftKey || rightKey || upKey || downKey)
@@ -101,27 +132,30 @@ public class player : MonoBehaviour
         {
             case "idle":
                 animation_controller.SetInteger("state", 0);
-                max_velocity = 0.0f;
-                VelocityUpdate(true);
+                max_velocity = walking_velocity;
                 break;
             case "forwardWalk":
                 animation_controller.SetInteger("state", 1);
                 max_velocity = walking_velocity;
-                VelocityUpdate(true);
                 break;
-            case "jump":
+            case "jumpStart":
                 animation_controller.SetInteger("state", 4);
                 max_velocity = walking_velocity;
-                VelocityUpdate(true);
+                break;
+            case "midAir":
+                animation_controller.SetInteger("state", 5);
+                max_velocity = walking_velocity;
+                break;
+            case "landing":
+                animation_controller.SetInteger("state", 6);
+                max_velocity = walking_velocity;
                 break;
             case "run":
                 animation_controller.SetInteger("state", 3);
                 max_velocity = 2.0f * walking_velocity;
-                VelocityUpdate(true);
                 break;
             case "grappling":
                 max_velocity = walking_velocity;
-                VelocityUpdate(true);
                 break;
             default:
                 break;
@@ -176,6 +210,7 @@ public class player : MonoBehaviour
         zdirection = Mathf.Cos(Mathf.Deg2Rad * playerModel.transform.rotation.eulerAngles.y);
 
         RotationUpdate(dir);
+        VelocityUpdate(xdirection, zdirection);
         PositionUpdate(xdirection, zdirection);
 
         //------------------------End of Grounded movement update------------------------------------------
@@ -187,7 +222,7 @@ public class player : MonoBehaviour
     // uses a short raycast down to see if player model is on the ground
     bool IsGrounded()
     {
-        return Physics.Raycast(playerModel.transform.position, -Vector3.up, 0.017f);
+        return Physics.Raycast(playerModel.transform.position, -Vector3.up, 0.1f);
     }
 
     void MoveTowardsGrapple()
@@ -197,42 +232,52 @@ public class player : MonoBehaviour
         Debug.Log(offset + ", " + distance);
         if (offset.magnitude > grappleMinDist)
         {
-            //offset = offset.normalized * grappleSpeed;
-            offset = offset.normalized * (distance);
-            character_controller.Move(offset * Time.deltaTime);
+            offset = offset.normalized * grappleSpeed;
+            //offset = offset.normalized * (distance);
+            velocity.x += offset.x;
+            velocity.y += offset.y;
+            velocity.z += offset.z;
+            //character_controller.Move(offset * Time.deltaTime);
         }
     }
 
     // tiny helper to save time, if forward is true update forwards, else backwards
     // if turn is true, update rotation, if not do not
-    void VelocityUpdate(bool forward)
+    void VelocityUpdate(float xDir, float zDir)
     {
+        // vector velocity update
         if (upKey || downKey || leftKey || rightKey)
         {
-            if (forward)
-            {
-                velocity += acceleration;
-                if (velocity > max_velocity)
-                    velocity = max_velocity;
-            }
-            else
-            {
-                velocity -= acceleration;
-                if (velocity < -max_velocity)
-                    velocity = -max_velocity;
-            }
+            velocity.x += acceleration * xDir;
+            velocity.z += acceleration * zDir;
+            if (Mathf.Abs(velocity.x) > Mathf.Abs(max_velocity * xDir))
+                velocity.x = (max_velocity * xDir);
+            if (Mathf.Abs(velocity.z) > Mathf.Abs(max_velocity * zDir))
+                velocity.z = (max_velocity * zDir);
         }
         else
         {
-            if (velocity < 0)
+            //Debug.Log("else" + xDir);
+            if (Mathf.Abs(velocity.x) > 0)
             {
-                velocity += acceleration;
+                if (Mathf.Abs(velocity.x) < 0.3f)
+                    velocity.x = 0;
+                else
+                    velocity.x -= acceleration * xDir;
             }
-            if (velocity > 0)
+            if (Mathf.Abs(velocity.z) > 0)
             {
-                velocity -= acceleration;
+                if (Mathf.Abs(velocity.z) < 0.3f)
+                    velocity.z = 0;
+                else
+                    velocity.z -= acceleration * zDir;
             }
         }
+
+        // handle jumping
+        if (jumping && (jumpTime > 0))
+            velocity.y = jumpStrength;
+
     }
 
     void PositionUpdate(float xDir, float zDir)
@@ -241,23 +286,23 @@ public class player : MonoBehaviour
         movement_direction.Normalize();
 
         // Handle Gravity
-        character_controller.Move(new Vector3(0, -gravity, 0) * Time.deltaTime);
+        //character_controller.Move(new Vector3(0, -gravity, 0) * Time.deltaTime);
+        if (!grounded)
+            velocity.y -= gravity * Time.deltaTime;
 
-
-        // Handle character input
-        if (upKey || downKey || leftKey || rightKey)
-        {
-            if (turning)
-                character_controller.Move(0.3f * movement_direction * velocity * Time.deltaTime);
-            else
-                character_controller.Move(movement_direction * velocity * Time.deltaTime);
-        }
+        // Handle jumping
 
         // Handle grappling gun
         if (state == "grappling")
         {
             MoveTowardsGrapple();
         }
+
+        // Move based on final velocity
+        if (turning)
+            character_controller.Move(0.3f * velocity * Time.deltaTime);
+        else
+            character_controller.Move(velocity * Time.deltaTime);
     }
 
     // helper to rotate player model
