@@ -534,6 +534,7 @@ GameObject:
   - component: {fileID: 768788632}
   - component: {fileID: 768788634}
   - component: {fileID: 768788633}
+  - component: {fileID: 768788635}
   m_Layer: 0
   m_Name: Camera
   m_TagString: Untagged
@@ -606,6 +607,20 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
+--- !u!114 &768788635
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 768788631}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 08069f69b47a8604a8c159decc9189ee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mouseSensitivity: 100
+  playerBody: {fileID: 1754091969}
 --- !u!1 &787366989
 GameObject:
   m_ObjectHideFlags: 0
@@ -921,6 +936,8 @@ MonoBehaviour:
   turn_speed: 1
   gravity: 9.8
   state: 
+  fPerson: {fileID: 0}
+  tPerson: {fileID: 0}
 --- !u!1 &1594992980
 GameObject:
   m_ObjectHideFlags: 0
@@ -1278,6 +1295,8 @@ MonoBehaviour:
   turn_speed: 500
   gravity: 9.8
   state: 
+  fPerson: {fileID: 569659956}
+  tPerson: {fileID: 768788631}
 --- !u!143 &1754091971
 CharacterController:
   m_ObjectHideFlags: 0

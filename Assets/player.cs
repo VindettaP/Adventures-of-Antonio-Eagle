@@ -31,6 +31,8 @@ public class player : MonoBehaviour
     private bool turning;
     private bool grounded;
 
+    private bool tabDown;
+    public GameObject fPerson, tPerson;
     // tiny helper to save time, if forward is true update forwards, else backwards
     // if turn is true, update rotation, if not do not
     void VelocityUpdate(bool forward)
@@ -75,6 +77,7 @@ public class player : MonoBehaviour
         ctrlDown = Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
         shiftDown = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
         spaceDown = Input.GetKey(KeyCode.Space);
+        tabDown = Input.GetKey(KeyCode.Tab);
 
         // set state based on input
         /* in animation controller, states controlled by int
@@ -83,6 +86,15 @@ public class player : MonoBehaviour
          * 3 = run forward
          * 4 = jumping
         */
+        //Changes between regular camera to the other camera 
+        if(tabDown){
+            fPerson.SetActive(true);
+            tPerson.SetActive(false);
+        }
+        else{
+            tPerson.SetActive(true);
+            fPerson.SetActive(false);
+        }
 
         if (spaceDown && state != "jump")
             state = "jump";
