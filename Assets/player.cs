@@ -20,6 +20,7 @@ public class player : MonoBehaviour
     public float jumpLength = 1.0f;
     public float jumpStrength = 50f;
     public float timeBetweenJumps = 1f;
+    public float drag = 0.1f;
 
     public string state;
 
@@ -227,17 +228,13 @@ public class player : MonoBehaviour
 
     void MoveTowardsGrapple()
     {
-        var offset = grappleScript.grapplePoint - playerModel.transform.position;
+        Vector3 offset = grappleScript.grapplePoint - playerModel.transform.position;
         float distance = offset.magnitude;
-        Debug.Log(offset + ", " + distance);
         if (offset.magnitude > grappleMinDist)
         {
-            offset = offset.normalized * grappleSpeed;
-            //offset = offset.normalized * (distance);
-            velocity.x += offset.x;
-            velocity.y += offset.y;
-            velocity.z += offset.z;
-            //character_controller.Move(offset * Time.deltaTime);
+            velocity.x += offset.x * grappleSpeed;
+            velocity.y += offset.y * grappleSpeed / 20;
+            velocity.z += offset.z * grappleSpeed;
         }
     }
 
@@ -255,24 +252,37 @@ public class player : MonoBehaviour
             if (Mathf.Abs(velocity.z) > Mathf.Abs(max_velocity * zDir))
                 velocity.z = (max_velocity * zDir);
         }
-        else
+        else  // not moving, decrease velocity towards zero
         {
-            //Debug.Log("else" + xDir);
             if (Mathf.Abs(velocity.x) > 0)
             {
-                if (Mathf.Abs(velocity.x) < 0.3f)
+                if (Mathf.Abs(velocity.x) < 0.3f)  // set to 0 if we get close enough
                     velocity.x = 0;
                 else
-                    velocity.x -= acceleration * xDir;
+                {
+                    if (velocity.x > 0)
+                        velocity.x -= drag;
+                    else
+                        velocity.x += drag;
+                    //velocity.x -= acceleration * xDir;
+                }
             }
             if (Mathf.Abs(velocity.z) > 0)
             {
-                if (Mathf.Abs(velocity.z) < 0.3f)
+                if (Mathf.Abs(velocity.z) < 0.2f)
                     velocity.z = 0;
                 else
-                    velocity.z -= acceleration * zDir;
+                {
+                    if (velocity.z > 0)
+                        velocity.z -= drag;
+                    else
+                        velocity.z += drag;
+                    //velocity.x -= acceleration * xDir;
+                }
             }
         }
+
+        Debug.Log("Velocity: " + velocity + " acc: " + acceleration * xDir);
 
         // handle jumping
         if (jumping && (jumpTime > 0))

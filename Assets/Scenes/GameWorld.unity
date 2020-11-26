@@ -202,85 +202,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 103405506}
   m_CullTransparentMesh: 0
---- !u!1 &276139869
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 276139870}
-  - component: {fileID: 276139872}
-  - component: {fileID: 276139871}
-  m_Layer: 5
-  m_Name: Text
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &276139870
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 276139869}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 787366993}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 130, y: 100}
-  m_SizeDelta: {x: 160, y: 30}
-  m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &276139871
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 276139869}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
-  m_Color: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
-  m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_FontData:
-    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 30
-    m_FontStyle: 0
-    m_BestFit: 0
-    m_MinSize: 3
-    m_MaxSize: 40
-    m_Alignment: 0
-    m_AlignByGeometry: 0
-    m_RichText: 1
-    m_HorizontalOverflow: 1
-    m_VerticalOverflow: 1
-    m_LineSpacing: 1
-  m_Text: "Hello Friends it is I, \nAntonio Eagle"
---- !u!222 &276139872
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 276139869}
-  m_CullTransparentMesh: 0
 --- !u!1 &398883468
 GameObject:
   m_ObjectHideFlags: 0
@@ -380,7 +301,7 @@ RectTransform:
   - {fileID: 1965234081}
   - {fileID: 2067765622}
   m_Father: {fileID: 787366993}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -712,7 +633,6 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_Children:
-  - {fileID: 276139870}
   - {fileID: 517852285}
   m_Father: {fileID: 0}
   m_RootOrder: 2
@@ -1279,8 +1199,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   movement_direction: {x: 0, y: 0, z: 0}
   walking_velocity: 10
-  velocity: 0
-  velocity2: {x: 0, y: 0, z: 0}
+  velocity: {x: 0, y: 0, z: 0}
   max_velocity: 0
   acceleration: 10
   turn_speed: 1
@@ -1289,6 +1208,8 @@ MonoBehaviour:
   grappleMinDist: 0.7
   jumpLength: 1
   jumpStrength: 50
+  timeBetweenJumps: 1
+  drag: 0.1
   state: 
   fPerson: {fileID: 0}
   tPerson: {fileID: 0}
@@ -1656,16 +1577,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   movement_direction: {x: 0, y: 0, z: 0}
   walking_velocity: 10
-  velocity: 0
-  velocity2: {x: 0, y: 0, z: 0}
+  velocity: {x: 0, y: 0, z: 0}
   max_velocity: 0
   acceleration: 10
   turn_speed: 500
   gravity: 9.8
-  grappleSpeed: 5
+  grappleSpeed: 0.04
   grappleMinDist: 0.7
   jumpLength: 0.3
   jumpStrength: 5
+  timeBetweenJumps: 1
+  drag: 0.1
   state: 
   fPerson: {fileID: 569659956}
   tPerson: {fileID: 768788631}
