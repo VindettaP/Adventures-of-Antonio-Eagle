@@ -16,7 +16,8 @@ public class player : MonoBehaviour
     public float turn_speed = 500f;
     public float gravity = 9.8f;
     public float grappleSpeed = 2.0f;
-    public float grappleMinDist = 3f;
+    public float grappleLength = 3f;
+    public float grappleUpSpeed = 11.0f;
     public float jumpLength = 1.0f;
     public float jumpStrength = 50f;
     public float timeBetweenJumps = 1f;
@@ -67,7 +68,7 @@ public class player : MonoBehaviour
         // Check if player model is grounded
         grounded = IsGrounded();
 
-        //Debug.Log("Grounded: " + grounded + " Jumping: " + jumping + " JumpTime: " + jumpTime + " State: " + state + " Velocity: " + velocity);
+        Debug.Log("Grounded: " + grounded + " Jumping: " + jumping + " JumpTime: " + jumpTime + " State: " + state + " Velocity: " + velocity);
 
         if (jumping)
             jumpTime -= Time.deltaTime; // decrease time in jump while we are jumping
@@ -230,12 +231,16 @@ public class player : MonoBehaviour
     {
         Vector3 offset = grappleScript.grapplePoint - playerModel.transform.position;
         float distance = offset.magnitude;
-        if (offset.magnitude > grappleMinDist)
-        {
-            velocity.x += offset.x * grappleSpeed;
-            velocity.y += offset.y * grappleSpeed / 20;
-            velocity.z += offset.z * grappleSpeed;
-        }
+
+        Vector3 xzVec = new Vector3(offset.x, 0, offset.z);
+        xzVec = Vector3.Normalize(xzVec);
+
+        velocity.x += xzVec.x * grappleSpeed;
+        velocity.z += xzVec.z * grappleSpeed;
+        if (offset.y > grappleLength)
+            velocity.y += grappleUpSpeed * Time.deltaTime;
+        else
+            velocity.y = 0.0f; // 
     }
 
     // tiny helper to save time, if forward is true update forwards, else backwards
@@ -243,70 +248,69 @@ public class player : MonoBehaviour
     void VelocityUpdate(float xDir, float zDir)
     {
         // vector velocity update
-        if (upKey || downKey || leftKey || rightKey)
+        if ((upKey || downKey || leftKey || rightKey) && grounded)
         {
+
             velocity.x += acceleration * xDir;
             velocity.z += acceleration * zDir;
             if (Mathf.Abs(velocity.x) > Mathf.Abs(max_velocity * xDir))
                 velocity.x = (max_velocity * xDir);
             if (Mathf.Abs(velocity.z) > Mathf.Abs(max_velocity * zDir))
-                velocity.z = (max_velocity * zDir);
+                velocity.z = (max_velocity * zDir); // 
         }
-        else  // not moving, decrease velocity towards zero
+        else if ((upKey || downKey || leftKey || rightKey))
         {
-            if (Mathf.Abs(velocity.x) > 0)
-            {
-                if (Mathf.Abs(velocity.x) < 0.3f)  // set to 0 if we get close enough
-                    velocity.x = 0;
-                else
-                {
-                    if (velocity.x > 0)
-                        velocity.x -= drag;
-                    else
-                        velocity.x += drag;
-                    //velocity.x -= acceleration * xDir;
-                }
-            }
-            if (Mathf.Abs(velocity.z) > 0)
-            {
-                if (Mathf.Abs(velocity.z) < 0.2f)
-                    velocity.z = 0;
-                else
-                {
-                    if (velocity.z > 0)
-                        velocity.z -= drag;
-                    else
-                        velocity.z += drag;
-                    //velocity.x -= acceleration * xDir;
-                }
-            }
+            // Reduce speed in air
+            if (Mathf.Abs(velocity.x) < Mathf.Abs(max_velocity * xDir))
+                velocity.x += acceleration * xDir * 0.2f;
+            if (Mathf.Abs(velocity.z) < Mathf.Abs(max_velocity * zDir))
+                velocity.z += acceleration * zDir * 0.2f;
         }
 
-        Debug.Log("Velocity: " + velocity + " acc: " + acceleration * xDir);
+        if (Mathf.Abs(velocity.x) > 0)
+        {
+            if (Mathf.Abs(velocity.x) < 0.01f)  // set to 0 if we get close enough
+                velocity.x = 0;
+            else
+            {
+                if (velocity.x > 0)
+                    velocity.x -= drag;
+                else
+                    velocity.x += drag;
+            }
+        }
+        if (Mathf.Abs(velocity.z) > 0)  
+        {
+            if (Mathf.Abs(velocity.z) < 0.01f)
+                velocity.z = 0;
+            else
+            {
+                if (velocity.z > 0)
+                    velocity.z -= drag;
+                else
+                    velocity.z += drag;
+            }
+        }
 
         // handle jumping
         if (jumping && (jumpTime > 0))
             velocity.y = jumpStrength;
 
-    }
-
-    void PositionUpdate(float xDir, float zDir)
-    {
-        movement_direction = new Vector3(xDir, 0.0f, zDir);
-        movement_direction.Normalize();
-
-        // Handle Gravity
-        //character_controller.Move(new Vector3(0, -gravity, 0) * Time.deltaTime);
+        // add gravity
         if (!grounded)
             velocity.y -= gravity * Time.deltaTime;
-
-        // Handle jumping
 
         // Handle grappling gun
         if (state == "grappling")
         {
             MoveTowardsGrapple();
         }
+    }
+
+    void PositionUpdate(float xDir, float zDir)
+    {
+        movement_direction = new Vector3(xDir, 0.0f, zDir);
+        movement_direction.Normalize();
 
         // Move based on final velocity
         if (turning)

@@ -1205,7 +1205,8 @@ MonoBehaviour:
   turn_speed: 1
   gravity: 9.8
   grappleSpeed: 2
-  grappleMinDist: 0.7
+  grappleLength: 3
+  grappleUpSpeed: 11
   jumpLength: 1
   jumpStrength: 50
   timeBetweenJumps: 1
@@ -1554,7 +1555,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1754091965}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 500, y: 300.85, z: 5}
+  m_LocalPosition: {x: 500, y: 300.85, z: 4.29}
   m_LocalScale: {x: 0.5, y: 0.9, z: 0.5}
   m_Children:
   - {fileID: 1360280433}
@@ -1582,8 +1583,9 @@ MonoBehaviour:
   acceleration: 10
   turn_speed: 500
   gravity: 9.8
-  grappleSpeed: 0.04
-  grappleMinDist: 0.7
+  grappleSpeed: 0.2
+  grappleLength: 3
+  grappleUpSpeed: 15
   jumpLength: 0.3
   jumpStrength: 5
   timeBetweenJumps: 1
