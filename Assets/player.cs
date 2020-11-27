@@ -104,6 +104,10 @@ public class player : MonoBehaviour
             tPerson.SetActive(true);
             fPerson.SetActive(false);
             grappleScript.StopGrapple();
+            //float targetAngle = Mathf.Atan2(movement_direction.x, movement_direction.z) * Mathf.Rad2Deg;
+
+            //gameObject.transform.rotation = Quaternion.Euler(0, targetAngle, 0);
+
         }
 
         if (grappleScript.grappling)
@@ -380,7 +384,7 @@ public class player : MonoBehaviour
                 break;
         }
         target = target % 360;
-
+        target = target + tPerson.transform.eulerAngles.y;
 
         turning = false;
 
