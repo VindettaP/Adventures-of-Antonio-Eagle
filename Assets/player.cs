@@ -22,6 +22,7 @@ public class player : MonoBehaviour
     public float jumpStrength = 50f;
     public float timeBetweenJumps = 1f;
     public float drag = 0.1f;
+    public float airDrag = 0.02f;
 
     public string state;
 
@@ -274,9 +275,19 @@ public class player : MonoBehaviour
             else
             {
                 if (velocity.x > 0)
-                    velocity.x -= drag;
+                {
+                    if (grounded)
+                        velocity.x -= drag;
+                    else
+                        velocity.x -= airDrag;
+                }
                 else
-                    velocity.x += drag;
+                {
+                    if (grounded)
+                        velocity.x += drag;
+                    else
+                        velocity.x += airDrag;
+                }
             }
         }
         if (Mathf.Abs(velocity.z) > 0)  
@@ -286,9 +297,19 @@ public class player : MonoBehaviour
             else
             {
                 if (velocity.z > 0)
-                    velocity.z -= drag;
+                {
+                    if (grounded)
+                        velocity.z -= drag;
+                    else
+                        velocity.z -= airDrag;
+                }
                 else
-                    velocity.z += drag;
+                {
+                    if (grounded)
+                        velocity.z += drag;
+                    else
+                        velocity.z += airDrag;
+                }
             }
         }
 
