@@ -15,7 +15,7 @@ public class EnemyAI : MonoBehaviour
     bool walkStartSet;
     public float walkRange;
 
-    //Attacking: Add stuff, dunno if we want to add shotting or what
+    //Attacking: Add stuff, dunno if we want to add shooting or what
     
     //States
     public float sight, aggroRange;
@@ -33,15 +33,23 @@ public class EnemyAI : MonoBehaviour
     {
         playerInSight = Physics.CheckSphere(transform.position, sight, whatisplayer);
 
-        if(!playerInSight) patrolling();
-        if(playerInSight) chasePlayer();
+        if(!playerInSight){
+            patrolling();
+        } 
+        if(playerInSight) {
+            chasePlayer();
+        }
     }
 
     private void patrolling(){
-        if(!walkStartSet) SearchWalkPoint();
 
-        if (walkStartSet)
+        
+
+        if (walkStartSet){
+            Debug.Log("Go Here");
             agent.SetDestination(walkStart);
+        }
+        if(!walkStartSet) searchWalkPoint();
         
         Vector3 distancetoWalkStart = transform.position - walkStart;
 
@@ -49,12 +57,7 @@ public class EnemyAI : MonoBehaviour
             walkStartSet = false;
         }
     }
-
-    private void chasePlayer(){
-        agent.SetDestination(player.position);
-    }
-
-    private void SearchWalkPoint()
+    private void searchWalkPoint()
     {
         //Calculate random point in range
         float randomZ = Random.Range(-walkRange, walkRange);
@@ -65,4 +68,11 @@ public class EnemyAI : MonoBehaviour
         if (Physics.Raycast(walkStart, -transform.up, 2f, ground))
             walkStartSet = true;
     }
+
+    private void chasePlayer(){
+        agent.SetDestination(player.position);
+    }
+
 }
+
+
