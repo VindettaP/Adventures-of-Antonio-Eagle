@@ -15,6 +15,9 @@ public class EnemyAI : MonoBehaviour
     bool walkStartSet;
     public float walkRange;
 
+    private Animator animation_controller;
+    private float vel;
+
     //Attacking: Add stuff, dunno if we want to add shooting or what
     
     //States
@@ -26,30 +29,34 @@ public class EnemyAI : MonoBehaviour
     {
         player = GameObject.Find("PlayerBody").transform;
         agent = GetComponent<NavMeshAgent>();
+        vel = agent.speed;
+        animation_controller = GetComponent<Animator>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        playerInSight = Physics.CheckSphere(transform.position, sight, whatisplayer);
+        playerInSight = Physics.CheckSphere(transform.position, sight, whatisplayer.value);
 
         if(!playerInSight){
+            animation_controller.SetBool("aggrod", false);
             patrolling();
         } 
         if(playerInSight) {
+            animation_controller.SetBool("aggrod", true);
             chasePlayer();
         }
     }
 
     private void patrolling(){
-
-        
-
         if (walkStartSet){
-            Debug.Log("Go Here");
+            agent.speed = vel;
             agent.SetDestination(walkStart);
         }
         if(!walkStartSet) searchWalkPoint();
+        
+        
+        
         
         Vector3 distancetoWalkStart = transform.position - walkStart;
 
@@ -62,7 +69,6 @@ public class EnemyAI : MonoBehaviour
         //Calculate random point in range
         float randomZ = Random.Range(-walkRange, walkRange);
         float randomX = Random.Range(-walkRange, walkRange);
-
         walkStart = new Vector3(transform.position.x + randomX, transform.position.y, transform.position.z + randomZ);
 
         if (Physics.Raycast(walkStart, -transform.up, 2f, ground))
@@ -70,6 +76,7 @@ public class EnemyAI : MonoBehaviour
     }
 
     private void chasePlayer(){
+        agent.speed = (vel*1.3f);
         agent.SetDestination(player.position);
     }
 
