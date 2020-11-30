@@ -182,18 +182,38 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 14
+    m_FontSize: 26
     m_FontStyle: 0
     m_BestFit: 0
-    m_MinSize: 10
-    m_MaxSize: 40
-    m_Alignment: 4
+    m_MinSize: 0
+    m_MaxSize: 265
+    m_Alignment: 1
     m_AlignByGeometry: 0
     m_RichText: 1
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Will be implemented
+  m_Text: 'W - Walk Forward
+
+    A - Walk Left
+
+    S- Walk Backwards
+
+    D - Walk
+    Right
+
+    Left Click - Shoot the Grapple Hook
+
+    Space - Jump
+
+    Move the
+    Mouse to look around
+
+
+    Goal: Get all the Abilities and find the exit!
+
+    Be
+    careful of enemies and obstacles!'
 --- !u!222 &21152966
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1846,7 +1866,11 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Us
+  m_Text: 'Sam Smith
+
+    Vincent Tran
+
+    Jerry Zeng'
 --- !u!222 &1466827995
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -2025,7 +2049,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.990566, g: 0.990566, b: 0.990566, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1

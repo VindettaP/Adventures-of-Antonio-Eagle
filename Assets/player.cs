@@ -96,7 +96,7 @@ public class player : MonoBehaviour
          * 6 = landing
         */
         //Changes between regular camera to the other camera 
-        if(tabDown){
+        if(tabDown && Time.timeScale == 1){
             fPerson.SetActive(true);
             tPerson.SetActive(false);
         }
