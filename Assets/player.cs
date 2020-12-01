@@ -69,7 +69,8 @@ public class player : MonoBehaviour
         // Check if player model is grounded
         grounded = IsGrounded();
 
-        Debug.Log("Grounded: " + grounded + " Jumping: " + jumping + " JumpTime: " + jumpTime + " State: " + state + " Velocity: " + velocity);
+        //Debug.Log("Grounded: " + grounded + " Jumping: " + jumping + " JumpTime: " + jumpTime + " State: " + state + " Velocity: " + velocity);
+        //Debug.Log("Model Rotation: " + playerModel.transform.rotation.eulerAngles + " ThirdPerson Rotation: " + tPerson.transform.rotation.eulerAngles + " Body Rotation: " + transform.rotation.eulerAngles);
 
         if (jumping)
             jumpTime -= Time.deltaTime; // decrease time in jump while we are jumping
@@ -216,6 +217,8 @@ public class player : MonoBehaviour
         xdirection = Mathf.Sin(Mathf.Deg2Rad * playerModel.transform.rotation.eulerAngles.y);
         zdirection = Mathf.Cos(Mathf.Deg2Rad * playerModel.transform.rotation.eulerAngles.y);
 
+        //Debug.Log(xdirection + ", " + zdirection + " TPerson Rot: " + tPerson.transform.rotation.eulerAngles + " model rot: " + playerModel.transform.rotation.eulerAngles + " Body Rot: " + transform.rotation.eulerAngles);
+
         RotationUpdate(dir);
         VelocityUpdate(xdirection, zdirection);
         PositionUpdate(xdirection, zdirection);
@@ -353,42 +356,42 @@ public class player : MonoBehaviour
         switch (dir)
         {
             case "north":
-                target = transform.rotation.eulerAngles.y;
+                target = tPerson.transform.rotation.eulerAngles.y;
                 break;
             case "south":
-                target = transform.rotation.eulerAngles.y + 180;
+                target = tPerson.transform.rotation.eulerAngles.y + 180;
                 break;
             case "east":
-                target = transform.rotation.eulerAngles.y + 270;
+                target = tPerson.transform.rotation.eulerAngles.y + 270;
                 break;
             case "west":
-                target = transform.rotation.eulerAngles.y + 90;
+                target = tPerson.transform.rotation.eulerAngles.y + 90;
                 break;
             case "northEast":
-                target = transform.rotation.eulerAngles.y + 315;
+                target = tPerson.transform.rotation.eulerAngles.y + 315;
                 break;
             case "northWest":
-                target = transform.rotation.eulerAngles.y + 45;
+                target = tPerson.transform.rotation.eulerAngles.y + 45;
                 break;
             case "southEast":
-                target = transform.rotation.eulerAngles.y + 225;
+                target = tPerson.transform.rotation.eulerAngles.y + 225;
                 break;
             case "southWest":
-                target = transform.rotation.eulerAngles.y + 135;
+                target = tPerson.transform.rotation.eulerAngles.y + 135;
                 break;
             case "none":
                 dontMove = true;
                 break;
             default:
-                target = transform.rotation.eulerAngles.y;
+                target = tPerson.transform.rotation.eulerAngles.y;
                 break;
         }
         target = target % 360;
-        target = target + tPerson.transform.eulerAngles.y;
+        //target = target + tPerson.transform.eulerAngles.y;
 
         turning = false;
 
-        if (state != "jump" && !dontMove)
+        if (!dontMove)
         {
             if ((target + 10) > playerModel.transform.rotation.eulerAngles.y && (target - 0) < playerModel.transform.rotation.eulerAngles.y)
             {
