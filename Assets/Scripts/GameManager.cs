@@ -7,6 +7,7 @@ using UnityEngine.UI;
 public class GameManager : MonoBehaviour
 {
     public GameObject pauseMenu;
+    public GameObject settings;
 
     public bool escKey;
     public bool paused;
@@ -14,6 +15,7 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        settings.gameObject.SetActive(false);
         pauseMenu.gameObject.SetActive(false);
         paused = false;
     }
@@ -42,6 +44,8 @@ public class GameManager : MonoBehaviour
     void OpenPause()
     {
         pauseMenu.gameObject.SetActive(true);
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
         Time.timeScale = 0;
         paused = true;
     }
@@ -49,6 +53,8 @@ public class GameManager : MonoBehaviour
     public void ClosePause()
     {
         pauseMenu.gameObject.SetActive(false);
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
         Time.timeScale = 1;
         paused = false;
     }
@@ -57,5 +63,13 @@ public class GameManager : MonoBehaviour
     {
         Time.timeScale = 1;
         SceneManager.LoadScene("MainMenu");
+    }
+
+    public void OpenSettings(){
+        settings.gameObject.SetActive(true);
+    }
+
+    public void GoBack(){
+        settings.gameObject.SetActive(false);
     }
 }
