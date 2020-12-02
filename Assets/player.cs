@@ -217,6 +217,7 @@ public class player : MonoBehaviour
         else
             dir = "none";
 
+        //Debug.Log(playerModel.transform.rotation.eulerAngles.y);
         xdirection = Mathf.Sin(Mathf.Deg2Rad * playerModel.transform.rotation.eulerAngles.y);
         zdirection = Mathf.Cos(Mathf.Deg2Rad * playerModel.transform.rotation.eulerAngles.y);
 
@@ -255,6 +256,7 @@ public class player : MonoBehaviour
 
     void VelocityUpdate(float xDir, float zDir)
     {
+        //Debug.Log("Player Model Rotation: " + playerModel.transform.rotation.eulerAngles + " Body rotation: " + transform.rotation.eulerAngles + " Velocity: " + velocity + " Dir: " + xDir + "," + zDir);
         // vector velocity update
         if ((upKey || downKey || leftKey || rightKey) && grounded)
         {
@@ -386,21 +388,23 @@ public class player : MonoBehaviour
                 target = transform.rotation.eulerAngles.y;
                 break;
         }
-        //target = target % 360;
+        target = target % 360;
         //target = target + tPerson.transform.eulerAngles.y;
 
-        //Debug.Log("Player Model Rotation: " + playerModel.transform.rotation.eulerAngles + " Body rotation: " + transform.rotation.eulerAngles);
+        //Debug.Log("Player Model Rotation: " + playerModel.transform.rotation.eulerAngles + " Body rotation: " + transform.rotation.eulerAngles + " Velocity: " + velocity);
 
         turning = false;
 
         if (state != "jump" && !dontMove)
         {
-            if ((target + 10) > playerModel.transform.rotation.eulerAngles.y && (target - 0) < playerModel.transform.rotation.eulerAngles.y)
+            if ((target + 10) > playerModel.transform.rotation.eulerAngles.y && (target - 10) < playerModel.transform.rotation.eulerAngles.y)
             {
                 playerModel.transform.eulerAngles = new Vector3(0, target, 0);
+                Debug.Log("Forcing to target: " + target);
             }
             else
             {
+                Debug.Log("Rotating towards target: " + target);
                 turning = true;
                 if ((target - playerModel.transform.rotation.eulerAngles.y + 360) % 360 > 180)
                 {

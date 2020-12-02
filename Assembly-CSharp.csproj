@@ -60,7 +60,6 @@
      <Compile Include="Assets\SettingsMenu.cs" />
      <Compile Include="Assets\GameManager.cs" />
      <Compile Include="Assets\GrappleGun.cs" />
-     <Compile Include="Assets\CameraController.cs" />
      <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />
      <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Mobile Overlay.shader" />
      <None Include="Assets\TextMesh Pro\Shaders\TMP_Bitmap.shader" />
