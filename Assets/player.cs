@@ -115,7 +115,10 @@ public class player : MonoBehaviour
         }
 
         if (grappleScript.grappling)
+        {
             state = "grappling";
+            jumping = true;
+        }
         else if (jumpTime < 0 && jumping && !grounded) // still in midair post jump
             state = "midAir";
         else if (jumpTime < 0 && grounded && jumping) // landed from a jump
@@ -151,11 +154,11 @@ public class player : MonoBehaviour
                 break;
             case "jumpStart":
                 animation_controller.SetInteger("state", 4);
-                max_velocity = walking_velocity;
+                //max_velocity = walking_velocity;
                 break;
             case "midAir":
                 animation_controller.SetInteger("state", 5);
-                max_velocity = walking_velocity;
+                //max_velocity = walking_velocity;
                 break;
             case "landing":
                 animation_controller.SetInteger("state", 6);
@@ -166,7 +169,7 @@ public class player : MonoBehaviour
                 max_velocity = 2.0f * walking_velocity;
                 break;
             case "grappling":
-                max_velocity = walking_velocity;
+                max_velocity = 2.0f * walking_velocity;
                 break;
             default:
                 break;
@@ -220,8 +223,6 @@ public class player : MonoBehaviour
         //Debug.Log(playerModel.transform.rotation.eulerAngles.y);
         xdirection = Mathf.Sin(Mathf.Deg2Rad * playerModel.transform.rotation.eulerAngles.y);
         zdirection = Mathf.Cos(Mathf.Deg2Rad * playerModel.transform.rotation.eulerAngles.y);
-
-        //Debug.Log("Velocity: " + velocity);
 
         if (state != "jump" && state != "midAir" && grounded)
             RotationUpdate(dir);
@@ -305,12 +306,17 @@ public class player : MonoBehaviour
 
         if (!dontMove)
         {
+            
             velocity.x += acceleration * xDir2;
             velocity.z += acceleration * zDir2;
             if (Mathf.Abs(velocity.x) > Mathf.Abs(max_velocity * xDir2))
+            {
                 velocity.x = (max_velocity * xDir2);
+            }
             if (Mathf.Abs(velocity.z) > Mathf.Abs(max_velocity * zDir2))
+            {
                 velocity.z = (max_velocity * zDir2);
+            }
         }
     }
 
@@ -318,16 +324,16 @@ public class player : MonoBehaviour
     {
         //Debug.Log("Player Model Rotation: " + playerModel.transform.rotation.eulerAngles + " Body rotation: " + transform.rotation.eulerAngles + " Velocity: " + velocity + " Dir: " + xDir + "," + zDir);
         // vector velocity update
-        if ((upKey || downKey || leftKey || rightKey) && grounded)
+        if ((upKey || downKey || leftKey || rightKey) && grounded && state != "grappling")
         {
             velocity.x += acceleration * xDir;
             velocity.z += acceleration * zDir;
             if (Mathf.Abs(velocity.x) > Mathf.Abs(max_velocity * xDir))
                 velocity.x = (max_velocity * xDir);
             if (Mathf.Abs(velocity.z) > Mathf.Abs(max_velocity * zDir))
-                velocity.z = (max_velocity * zDir); // 
+                velocity.z = (max_velocity * zDir); 
         }
-        else if ((upKey || downKey || leftKey || rightKey))
+        else if ((upKey || downKey || leftKey || rightKey) && state != "grappling")
         {
             AirVelocityUpdate(dir);
         } 
