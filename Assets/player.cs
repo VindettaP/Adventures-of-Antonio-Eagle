@@ -248,7 +248,7 @@ public class player : MonoBehaviour
         Vector3 force = Vector3.Normalize(offset) * (distance - grappleLength) * grappleSpeed;
 
         velocity.x += force.x;
-        velocity.y += force.y / 1.5;
+        velocity.y += force.y / 1.5f;
         velocity.z += force.z;
     }
 
