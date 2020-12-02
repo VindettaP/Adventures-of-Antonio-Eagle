@@ -71,7 +71,7 @@ public class player : MonoBehaviour
         // Check if player model is grounded
         grounded = IsGrounded();
 
-        Debug.Log("Grounded: " + grounded + " Jumping: " + jumping + " JumpTime: " + jumpTime + " State: " + state + " Velocity: " + velocity);
+        //Debug.Log("Grounded: " + grounded + " Jumping: " + jumping + " JumpTime: " + jumpTime + " State: " + state + " Velocity: " + velocity);
 
         if (jumping)
             jumpTime -= Time.deltaTime; // decrease time in jump while we are jumping
@@ -252,8 +252,7 @@ public class player : MonoBehaviour
             velocity.y = 0.0f; // 
     }
 
-    // tiny helper to save time, if forward is true update forwards, else backwards
-    // if turn is true, update rotation, if not do not
+
     void VelocityUpdate(float xDir, float zDir)
     {
         // vector velocity update
@@ -387,8 +386,10 @@ public class player : MonoBehaviour
                 target = transform.rotation.eulerAngles.y;
                 break;
         }
-        target = target % 360;
-        target = target + tPerson.transform.eulerAngles.y;
+        //target = target % 360;
+        //target = target + tPerson.transform.eulerAngles.y;
+
+        //Debug.Log("Player Model Rotation: " + playerModel.transform.rotation.eulerAngles + " Body rotation: " + transform.rotation.eulerAngles);
 
         turning = false;
 

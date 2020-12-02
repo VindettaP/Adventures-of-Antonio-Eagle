@@ -6,12 +6,16 @@ public class mouseLook : MonoBehaviour
 {
     public float mouseSensitivity = 100f;
     public Transform playerBody;
-    float xRotation = 0f; 
+    public Transform playerModel;
+    public bool firstPerson = false;
+    float xRotation = 0f;
+    public GameObject cam;
 
     // Start is called before the first frame update
     void Start()
     {
-
+        if (!firstPerson)
+            cam.SetActive(false);
         Cursor.lockState = CursorLockMode.Locked;
     }
 
@@ -23,9 +27,19 @@ public class mouseLook : MonoBehaviour
         
         xRotation -= mouseY;
         xRotation = Mathf.Clamp(xRotation, -90f, 90f);
-        transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
-        playerBody.Rotate(Vector3.up * mouseX);
+        if (firstPerson)
+        {
+            transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
+            playerBody.Rotate(Vector3.up * mouseX);
+        }
 
-
+        if (!firstPerson)
+        {
+            //Debug.Log("Y: " + mouseY + " Rot x: " + transform.rotation.eulerAngles.x);
+            if (!(mouseY < 0 && transform.rotation.eulerAngles.x >= 348.0f && transform.rotation.eulerAngles.x < 350.0f) &&
+                !(mouseY > 0 && transform.rotation.eulerAngles.x >= 35.0f && transform.rotation.eulerAngles.x < 40.0f))
+                transform.RotateAround(playerBody.transform.position, playerBody.transform.right, mouseY);
+            playerBody.Rotate(Vector3.up * mouseX);
+        }
     }
 }
