@@ -5033,8 +5033,8 @@ MonoBehaviour:
   acceleration: 10
   turn_speed: 2000
   gravity: 9.8
-  grappleSpeed: 0.2
-  grappleLength: 3
+  grappleSpeed: 0.01
+  grappleLength: 5
   grappleUpSpeed: 15
   jumpLength: 0.3
   jumpStrength: 5

@@ -243,6 +243,7 @@ public class player : MonoBehaviour
 
     void MoveTowardsGrapple()
     {
+        /* // old code
         Vector3 offset = grappleScript.grapplePoint - playerModel.transform.position;
         float distance = offset.magnitude;
 
@@ -254,7 +255,16 @@ public class player : MonoBehaviour
         if (offset.y > grappleLength)
             velocity.y += grappleUpSpeed * Time.deltaTime;
         else
-            velocity.y = 0.0f; // 
+            velocity.y = 0.0f; // */
+        Vector3 offset = grappleScript.grapplePoint - playerModel.transform.position;
+        float distance = offset.magnitude;
+
+        Vector3 force = Vector3.Normalize(offset) * (distance - grappleLength) * grappleSpeed;
+
+        velocity.x += force.x;
+        velocity.y += force.y / 1.5;
+        velocity.z += force.z;
+
     }
 
     void AirVelocityUpdate(string dir)
