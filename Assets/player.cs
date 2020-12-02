@@ -306,16 +306,22 @@ public class player : MonoBehaviour
 
         if (!dontMove)
         {
-            
-            velocity.x += acceleration * xDir2;
-            velocity.z += acceleration * zDir2;
-            if (Mathf.Abs(velocity.x) > Mathf.Abs(max_velocity * xDir2))
+            if (Mathf.Abs(velocity.x) < Mathf.Abs((max_velocity + 2) * xDir2) || (Mathf.Sign(velocity.x) != Mathf.Sign(xDir2) && xDir2 != 0))
             {
-                velocity.x = (max_velocity * xDir2);
+                velocity.x += acceleration * xDir2;
+                if (Mathf.Abs(velocity.x) > Mathf.Abs(max_velocity * xDir2))
+                {
+                    velocity.x = (max_velocity * xDir2);
+                }
             }
-            if (Mathf.Abs(velocity.z) > Mathf.Abs(max_velocity * zDir2))
+
+            if (Mathf.Abs(velocity.z) < Mathf.Abs((max_velocity + 2) * zDir2) || (Mathf.Sign(velocity.z) != Mathf.Sign(zDir2) && zDir2 != 0))
             {
-                velocity.z = (max_velocity * zDir2);
+                velocity.z += acceleration * zDir2;
+                if (Mathf.Abs(velocity.z) > Mathf.Abs(max_velocity * zDir2))
+                {
+                    velocity.z = (max_velocity * zDir2);
+                }
             }
         }
     }
@@ -326,12 +332,19 @@ public class player : MonoBehaviour
         // vector velocity update
         if ((upKey || downKey || leftKey || rightKey) && grounded && state != "grappling")
         {
-            velocity.x += acceleration * xDir;
-            velocity.z += acceleration * zDir;
-            if (Mathf.Abs(velocity.x) > Mathf.Abs(max_velocity * xDir))
-                velocity.x = (max_velocity * xDir);
-            if (Mathf.Abs(velocity.z) > Mathf.Abs(max_velocity * zDir))
-                velocity.z = (max_velocity * zDir); 
+            if (Mathf.Abs(velocity.x) < Mathf.Abs((max_velocity + 2) * xDir) || (Mathf.Sign(velocity.x) != Mathf.Sign(xDir) && xDir != 0))
+            {
+                velocity.x += acceleration * xDir;
+                if (Mathf.Abs(velocity.x) > Mathf.Abs(max_velocity * xDir))
+                    velocity.x = (max_velocity * xDir);
+            }
+
+            if (Mathf.Abs(velocity.z) < Mathf.Abs((max_velocity + 2) * zDir) || (Mathf.Sign(velocity.z) != Mathf.Sign(zDir) && zDir != 0))
+            {
+                velocity.z += acceleration * zDir;
+                if (Mathf.Abs(velocity.z) > Mathf.Abs(max_velocity * zDir))
+                    velocity.z = (max_velocity * zDir);
+            }
         }
         else if ((upKey || downKey || leftKey || rightKey) && state != "grappling")
         {
