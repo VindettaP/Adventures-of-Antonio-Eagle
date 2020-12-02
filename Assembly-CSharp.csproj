@@ -36,14 +36,11 @@
     <ImplicitlyExpandDesignTimeFacades>false</ImplicitlyExpandDesignTimeFacades>
   </PropertyGroup>
   <ItemGroup>
-     <Compile Include="Assets\Scripts\MainMenuHandler.cs" />
      <Compile Include="Assets\player.cs" />
-     <Compile Include="Assets\Scripts\GameManager.cs" />
-     <Compile Include="Assets\Scripts\Grapple.cs" />
+     <Compile Include="Assets\FullscreenToggle.cs" />
+     <Compile Include="Assets\SettingsMenu.cs" />
+     <Compile Include="Assets\GameManager.cs" />
      <Compile Include="Assets\GrappleGun.cs" />
-     <Compile Include="Assets\Scripts\mouseLook.cs" />
-     <Compile Include="Assets\Scripts\ContinueMenuHandler.cs" />
-     <Compile Include="Assets\Scripts\OptionsMenuHandler.cs" />
      <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />
      <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Mobile Overlay.shader" />
      <None Include="Assets\TextMesh Pro\Shaders\TMP_Bitmap.shader" />
@@ -602,6 +599,9 @@
     <Reference Include="Unity.Timeline.Editor">
         <HintPath>C:/Users/rokky/Documents/GitHub/CS563_Final/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>
     </Reference>
+    <Reference Include="Cinemachine">
+        <HintPath>C:/Users/rokky/Documents/GitHub/CS563_Final/Library/ScriptAssemblies/Cinemachine.dll</HintPath>
+    </Reference>
     <Reference Include="Unity.VSCode.Editor">
         <HintPath>C:/Users/rokky/Documents/GitHub/CS563_Final/Library/ScriptAssemblies/Unity.VSCode.Editor.dll</HintPath>
     </Reference>
@@ -617,6 +617,9 @@
     <Reference Include="Unity.Rider.Editor">
         <HintPath>C:/Users/rokky/Documents/GitHub/CS563_Final/Library/ScriptAssemblies/Unity.Rider.Editor.dll</HintPath>
     </Reference>
+    <Reference Include="com.unity.cinemachine.editor">
+        <HintPath>C:/Users/rokky/Documents/GitHub/CS563_Final/Library/ScriptAssemblies/com.unity.cinemachine.editor.dll</HintPath>
+    </Reference>
     <Reference Include="Unity.VisualStudio.Editor">
         <HintPath>C:/Users/rokky/Documents/GitHub/CS563_Final/Library/ScriptAssemblies/Unity.VisualStudio.Editor.dll</HintPath>
     </Reference>
@@ -628,6 +631,16 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="NavMeshComponentsEditor.csproj">
+      <Project>{f2d498e3-df41-a2d9-0dc0-00707f997c1d}</Project>
+      <Name>NavMeshComponentsEditor</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="NavMeshComponents.csproj">
+      <Project>{77155357-351c-1d92-0b78-667a971a1967}</Project>
+      <Name>NavMeshComponents</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

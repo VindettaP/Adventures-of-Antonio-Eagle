@@ -44,6 +44,7 @@ public class player : MonoBehaviour
     private float jumpCooldown = 0;
 
     private bool tabDown;
+    private bool camerap;
     public GameObject fPerson, tPerson;
     
 
@@ -61,6 +62,7 @@ public class player : MonoBehaviour
         jumpTime = jumpLength;
         jumpCooldown = timeBetweenJumps;
         grappleScript = GameObject.Find("Grapple").GetComponent<Grapple>();
+        camerap = false;
     }
 
     // Update is called once per frame
@@ -84,7 +86,7 @@ public class player : MonoBehaviour
         ctrlDown = Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
         shiftDown = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
         spaceDown = Input.GetKey(KeyCode.Space);
-        tabDown = Input.GetKey(KeyCode.Tab);
+        tabDown = Input.GetKeyDown(KeyCode.Tab);
 
         // set state based on input
         /* in animation controller, states controlled by int
@@ -96,14 +98,16 @@ public class player : MonoBehaviour
          * 6 = landing
         */
         //Changes between regular camera to the other camera 
-        if(tabDown && Time.timeScale == 1){
+        if(tabDown && camerap){
             fPerson.SetActive(true);
             tPerson.SetActive(false);
+            camerap = false;
         }
-        else{
+        else if (tabDown && !camerap){
             tPerson.SetActive(true);
             fPerson.SetActive(false);
             grappleScript.StopGrapple();
+            camerap = true;
             //float targetAngle = Mathf.Atan2(movement_direction.x, movement_direction.z) * Mathf.Rad2Deg;
 
             //gameObject.transform.rotation = Quaternion.Euler(0, targetAngle, 0);
