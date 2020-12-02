@@ -17,7 +17,6 @@ public class player : MonoBehaviour
     public float gravity = 9.8f;
     public float grappleSpeed = 2.0f;
     public float grappleLength = 3f;
-    public float grappleUpSpeed = 11.0f;
     public float jumpLength = 1.0f;
     public float jumpStrength = 50f;
     public float timeBetweenJumps = 1f;
@@ -71,7 +70,7 @@ public class player : MonoBehaviour
         // Check if player model is grounded
         grounded = IsGrounded();
 
-        Debug.Log("Grounded: " + grounded + " Jumping: " + jumping + " JumpTime: " + jumpTime + " State: " + state + " Velocity: " + velocity);
+        //Debug.Log("Grounded: " + grounded + " Jumping: " + jumping + " JumpTime: " + jumpTime + " State: " + state + " Velocity: " + velocity);
 
         if (jumping)
             jumpTime -= Time.deltaTime; // decrease time in jump while we are jumping
@@ -115,7 +114,10 @@ public class player : MonoBehaviour
         }
 
         if (grappleScript.grappling)
+        {
             state = "grappling";
+            jumping = true;
+        }
         else if (jumpTime < 0 && jumping && !grounded) // still in midair post jump
             state = "midAir";
         else if (jumpTime < 0 && grounded && jumping) // landed from a jump
@@ -151,11 +153,11 @@ public class player : MonoBehaviour
                 break;
             case "jumpStart":
                 animation_controller.SetInteger("state", 4);
-                max_velocity = walking_velocity;
+                //max_velocity = walking_velocity;
                 break;
             case "midAir":
                 animation_controller.SetInteger("state", 5);
-                max_velocity = walking_velocity;
+                //max_velocity = walking_velocity;
                 break;
             case "landing":
                 animation_controller.SetInteger("state", 6);
@@ -166,7 +168,7 @@ public class player : MonoBehaviour
                 max_velocity = 2.0f * walking_velocity;
                 break;
             case "grappling":
-                max_velocity = walking_velocity;
+                max_velocity = 2.0f * walking_velocity;
                 break;
             default:
                 break;
@@ -217,11 +219,13 @@ public class player : MonoBehaviour
         else
             dir = "none";
 
+        //Debug.Log(playerModel.transform.rotation.eulerAngles.y);
         xdirection = Mathf.Sin(Mathf.Deg2Rad * playerModel.transform.rotation.eulerAngles.y);
         zdirection = Mathf.Cos(Mathf.Deg2Rad * playerModel.transform.rotation.eulerAngles.y);
 
-        RotationUpdate(dir);
-        VelocityUpdate(xdirection, zdirection);
+        if (state != "jump" && state != "midAir" && grounded)
+            RotationUpdate(dir);
+        VelocityUpdate(xdirection, zdirection, dir);
         PositionUpdate(xdirection, zdirection);
 
         //------------------------End of Grounded movement update------------------------------------------
@@ -241,40 +245,106 @@ public class player : MonoBehaviour
         Vector3 offset = grappleScript.grapplePoint - playerModel.transform.position;
         float distance = offset.magnitude;
 
-        Vector3 xzVec = new Vector3(offset.x, 0, offset.z);
-        xzVec = Vector3.Normalize(xzVec);
+        Vector3 force = Vector3.Normalize(offset) * (distance - grappleLength) * grappleSpeed;
 
-        velocity.x += xzVec.x * grappleSpeed;
-        velocity.z += xzVec.z * grappleSpeed;
-        if (offset.y > grappleLength)
-            velocity.y += grappleUpSpeed * Time.deltaTime;
-        else
-            velocity.y = 0.0f; // 
+        velocity.x += force.x;
+        velocity.y += force.y / 1.5;
+        velocity.z += force.z;
     }
 
-    // tiny helper to save time, if forward is true update forwards, else backwards
-    // if turn is true, update rotation, if not do not
-    void VelocityUpdate(float xDir, float zDir)
+    void AirVelocityUpdate(string dir)
     {
-        // vector velocity update
-        if ((upKey || downKey || leftKey || rightKey) && grounded)
+        float xDir2 = 0;
+        float zDir2 = 0;
+        bool dontMove = false;
+        switch (dir)
         {
+            case "north":
+                xDir2 = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y));
+                zDir2 = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y));
+                break;
+            case "south":
+                xDir2 = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 180));
+                zDir2 = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 180));
+                break;
+            case "east":
+                xDir2 = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 270));
+                zDir2 = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 270));
+                break;
+            case "west":
+                xDir2 = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 90));
+                zDir2 = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 90));
+                break;
+            case "northEast":
+                xDir2 = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 315));
+                zDir2 = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 315));
+                break;
+            case "northWest":
+                xDir2 = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 45));
+                zDir2 = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 45));
+                break;
+            case "southEast":
+                xDir2 = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 225));
+                zDir2 = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 225));
+                break;
+            case "southWest":
+                xDir2 = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 135));
+                zDir2 = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 135));
+                break;
+            case "none":
+                dontMove = true;
+                break;
+            default:
+                dontMove = true;
+                break;
+        }
 
-            velocity.x += acceleration * xDir;
-            velocity.z += acceleration * zDir;
-            if (Mathf.Abs(velocity.x) > Mathf.Abs(max_velocity * xDir))
-                velocity.x = (max_velocity * xDir);
-            if (Mathf.Abs(velocity.z) > Mathf.Abs(max_velocity * zDir))
-                velocity.z = (max_velocity * zDir); // 
-        }
-        else if ((upKey || downKey || leftKey || rightKey))
+        if (!dontMove)
         {
-            // Reduce speed in air
-            if (Mathf.Abs(velocity.x) < Mathf.Abs(max_velocity * xDir))
-                velocity.x += acceleration * xDir * 0.2f;
-            if (Mathf.Abs(velocity.z) < Mathf.Abs(max_velocity * zDir))
-                velocity.z += acceleration * zDir * 0.2f;
+            if (Mathf.Abs(velocity.x) < Mathf.Abs((max_velocity + 2) * xDir2) || (Mathf.Sign(velocity.x) != Mathf.Sign(xDir2) && xDir2 != 0))
+            {
+                velocity.x += acceleration * xDir2;
+                if (Mathf.Abs(velocity.x) > Mathf.Abs(max_velocity * xDir2))
+                {
+                    velocity.x = (max_velocity * xDir2);
+                }
+            }
+
+            if (Mathf.Abs(velocity.z) < Mathf.Abs((max_velocity + 2) * zDir2) || (Mathf.Sign(velocity.z) != Mathf.Sign(zDir2) && zDir2 != 0))
+            {
+                velocity.z += acceleration * zDir2;
+                if (Mathf.Abs(velocity.z) > Mathf.Abs(max_velocity * zDir2))
+                {
+                    velocity.z = (max_velocity * zDir2);
+                }
+            }
         }
+    }
+
+    void VelocityUpdate(float xDir, float zDir, string dir)
+    {
+        //Debug.Log("Player Model Rotation: " + playerModel.transform.rotation.eulerAngles + " Body rotation: " + transform.rotation.eulerAngles + " Velocity: " + velocity + " Dir: " + xDir + "," + zDir);
+        // vector velocity update
+        if ((upKey || downKey || leftKey || rightKey) && grounded && state != "grappling")
+        {
+            if (Mathf.Abs(velocity.x) < Mathf.Abs((max_velocity + 2) * xDir) || (Mathf.Sign(velocity.x) != Mathf.Sign(xDir) && xDir != 0))
+            {
+                velocity.x += acceleration * xDir;
+                if (Mathf.Abs(velocity.x) > Mathf.Abs(max_velocity * xDir))
+                    velocity.x = (max_velocity * xDir);
+            }
+
+            if (Mathf.Abs(velocity.z) < Mathf.Abs((max_velocity + 2) * zDir) || (Mathf.Sign(velocity.z) != Mathf.Sign(zDir) && zDir != 0))
+            {
+                velocity.z += acceleration * zDir;
+                if (Mathf.Abs(velocity.z) > Mathf.Abs(max_velocity * zDir))
+                    velocity.z = (max_velocity * zDir);
+            }
+        }
+        else if ((upKey || downKey || leftKey || rightKey) && state != "grappling")
+        {
+            AirVelocityUpdate(dir);
+        } 
 
         if (Mathf.Abs(velocity.x) > 0)
         {
@@ -342,10 +412,7 @@ public class player : MonoBehaviour
         movement_direction.Normalize();
 
         // Move based on final velocity
-        if (turning)
-            character_controller.Move(0.3f * velocity * Time.deltaTime);
-        else
-            character_controller.Move(velocity * Time.deltaTime);
+        character_controller.Move(velocity * Time.deltaTime);
     }
 
     // helper to rotate player model
@@ -388,13 +455,15 @@ public class player : MonoBehaviour
                 break;
         }
         target = target % 360;
-        target = target + tPerson.transform.eulerAngles.y;
+        //target = target + tPerson.transform.eulerAngles.y;
+
+        //Debug.Log("Player Model Rotation: " + playerModel.transform.rotation.eulerAngles + " Body rotation: " + transform.rotation.eulerAngles + " Velocity: " + velocity);
 
         turning = false;
 
         if (state != "jump" && !dontMove)
         {
-            if ((target + 10) > playerModel.transform.rotation.eulerAngles.y && (target - 0) < playerModel.transform.rotation.eulerAngles.y)
+            if ((target + 10) > playerModel.transform.rotation.eulerAngles.y && (target - 10) < playerModel.transform.rotation.eulerAngles.y)
             {
                 playerModel.transform.eulerAngles = new Vector3(0, target, 0);
             }
