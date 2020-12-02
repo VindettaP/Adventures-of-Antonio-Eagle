@@ -221,8 +221,11 @@ public class player : MonoBehaviour
         xdirection = Mathf.Sin(Mathf.Deg2Rad * playerModel.transform.rotation.eulerAngles.y);
         zdirection = Mathf.Cos(Mathf.Deg2Rad * playerModel.transform.rotation.eulerAngles.y);
 
-        RotationUpdate(dir);
-        VelocityUpdate(xdirection, zdirection);
+        //Debug.Log("Velocity: " + velocity);
+
+        if (state != "jump" && state != "midAir" && grounded)
+            RotationUpdate(dir);
+        VelocityUpdate(xdirection, zdirection, dir);
         PositionUpdate(xdirection, zdirection);
 
         //------------------------End of Grounded movement update------------------------------------------
@@ -253,14 +256,70 @@ public class player : MonoBehaviour
             velocity.y = 0.0f; // 
     }
 
+    void AirVelocityUpdate(string dir)
+    {
+        float xDir2 = 0;
+        float zDir2 = 0;
+        bool dontMove = false;
+        switch (dir)
+        {
+            case "north":
+                xDir2 = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y));
+                zDir2 = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y));
+                break;
+            case "south":
+                xDir2 = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 180));
+                zDir2 = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 180));
+                break;
+            case "east":
+                xDir2 = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 270));
+                zDir2 = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 270));
+                break;
+            case "west":
+                xDir2 = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 90));
+                zDir2 = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 90));
+                break;
+            case "northEast":
+                xDir2 = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 315));
+                zDir2 = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 315));
+                break;
+            case "northWest":
+                xDir2 = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 45));
+                zDir2 = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 45));
+                break;
+            case "southEast":
+                xDir2 = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 225));
+                zDir2 = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 225));
+                break;
+            case "southWest":
+                xDir2 = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 135));
+                zDir2 = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 135));
+                break;
+            case "none":
+                dontMove = true;
+                break;
+            default:
+                dontMove = true;
+                break;
+        }
 
-    void VelocityUpdate(float xDir, float zDir)
+        if (!dontMove)
+        {
+            velocity.x += acceleration * xDir2;
+            velocity.z += acceleration * zDir2;
+            if (Mathf.Abs(velocity.x) > Mathf.Abs(max_velocity * xDir2))
+                velocity.x = (max_velocity * xDir2);
+            if (Mathf.Abs(velocity.z) > Mathf.Abs(max_velocity * zDir2))
+                velocity.z = (max_velocity * zDir2);
+        }
+    }
+
+    void VelocityUpdate(float xDir, float zDir, string dir)
     {
         //Debug.Log("Player Model Rotation: " + playerModel.transform.rotation.eulerAngles + " Body rotation: " + transform.rotation.eulerAngles + " Velocity: " + velocity + " Dir: " + xDir + "," + zDir);
         // vector velocity update
         if ((upKey || downKey || leftKey || rightKey) && grounded)
         {
-
             velocity.x += acceleration * xDir;
             velocity.z += acceleration * zDir;
             if (Mathf.Abs(velocity.x) > Mathf.Abs(max_velocity * xDir))
@@ -270,12 +329,8 @@ public class player : MonoBehaviour
         }
         else if ((upKey || downKey || leftKey || rightKey))
         {
-            // Reduce speed in air
-            if (Mathf.Abs(velocity.x) < Mathf.Abs(max_velocity * xDir))
-                velocity.x += acceleration * xDir * 0.2f;
-            if (Mathf.Abs(velocity.z) < Mathf.Abs(max_velocity * zDir))
-                velocity.z += acceleration * zDir * 0.2f;
-        }
+            AirVelocityUpdate(dir);
+        } 
 
         if (Mathf.Abs(velocity.x) > 0)
         {
@@ -343,10 +398,7 @@ public class player : MonoBehaviour
         movement_direction.Normalize();
 
         // Move based on final velocity
-        if (turning)
-            character_controller.Move(0.3f * velocity * Time.deltaTime);
-        else
-            character_controller.Move(velocity * Time.deltaTime);
+        character_controller.Move(velocity * Time.deltaTime);
     }
 
     // helper to rotate player model
@@ -400,11 +452,9 @@ public class player : MonoBehaviour
             if ((target + 10) > playerModel.transform.rotation.eulerAngles.y && (target - 10) < playerModel.transform.rotation.eulerAngles.y)
             {
                 playerModel.transform.eulerAngles = new Vector3(0, target, 0);
-                Debug.Log("Forcing to target: " + target);
             }
             else
             {
-                Debug.Log("Rotating towards target: " + target);
                 turning = true;
                 if ((target - playerModel.transform.rotation.eulerAngles.y + 360) % 360 > 180)
                 {

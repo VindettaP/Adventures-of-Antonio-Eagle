@@ -1746,7 +1746,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 569659956}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.8, z: 0}
+  m_LocalPosition: {x: 0, y: 0.8, z: 0.4}
   m_LocalScale: {x: 2, y: 1.1111112, z: 2}
   m_Children:
   - {fileID: 1226301571}
@@ -1766,6 +1766,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mouseSensitivity: 100
+  thirdPersonMinAngle: -12
+  thirdPersonMaxAngle: 35
   playerBody: {fileID: 1754091969}
   playerModel: {fileID: 0}
   firstPerson: 1
@@ -2255,6 +2257,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mouseSensitivity: 100
+  thirdPersonMinAngle: -12
+  thirdPersonMaxAngle: 35
   playerBody: {fileID: 1754091969}
   playerModel: {fileID: 0}
   firstPerson: 0
@@ -4019,6 +4023,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 11
       objectReference: {fileID: 0}
+    - target: {fileID: 4129522088753417382, guid: 25dca67001422c04d8a535a7cd2006c4, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4217577085713541052, guid: 25dca67001422c04d8a535a7cd2006c4, type: 3}
       propertyPath: m_Layer
       value: 11
@@ -5023,7 +5031,7 @@ MonoBehaviour:
   velocity: {x: 0, y: 0, z: 0}
   max_velocity: 0
   acceleration: 10
-  turn_speed: 500
+  turn_speed: 2000
   gravity: 9.8
   grappleSpeed: 0.2
   grappleLength: 3

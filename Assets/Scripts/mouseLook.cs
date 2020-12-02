@@ -5,6 +5,8 @@ using UnityEngine;
 public class mouseLook : MonoBehaviour
 {
     public float mouseSensitivity = 100f;
+    public float thirdPersonMinAngle = -12.0f; // MUST BE A NEGATIVE ANGLE
+    public float thirdPersonMaxAngle = 35.0f;
     public Transform playerBody;
     public Transform playerModel;
     public bool firstPerson = false;
@@ -36,8 +38,8 @@ public class mouseLook : MonoBehaviour
         if (!firstPerson)
         {
             //Debug.Log("Y: " + mouseY + " Rot x: " + transform.rotation.eulerAngles.x);
-            if (!(mouseY < 0 && transform.rotation.eulerAngles.x >= 348.0f && transform.rotation.eulerAngles.x < 350.0f) &&
-                !(mouseY > 0 && transform.rotation.eulerAngles.x >= 35.0f && transform.rotation.eulerAngles.x < 40.0f))
+            if (!(mouseY < 0 && transform.rotation.eulerAngles.x >= (360.0f + thirdPersonMinAngle)) &&
+                !(mouseY > 0 && transform.rotation.eulerAngles.x >= thirdPersonMaxAngle && transform.rotation.eulerAngles.x < thirdPersonMaxAngle + 10))
                 transform.RotateAround(playerBody.transform.position, playerBody.transform.right, mouseY);
             playerBody.Rotate(Vector3.up * mouseX);
         }
