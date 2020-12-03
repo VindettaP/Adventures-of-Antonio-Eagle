@@ -97,12 +97,18 @@ public class player : MonoBehaviour
          * 6 = landing
         */
         //Changes between regular camera to the other camera 
-        if(tabDown && camerap){
+        if(tabDown && camerap && Time.timeScale > 0)
+        {
             fPerson.SetActive(true);
             tPerson.SetActive(false);
             camerap = false;
+            
+            // Set player model to face direction of first person camera when switching
+            float y = fPerson.transform.eulerAngles.y;
+            playerModel.transform.eulerAngles = new Vector3(playerModel.transform.eulerAngles.x, y, playerModel.transform.eulerAngles.z);
         }
-        else if (tabDown && !camerap){
+        else if (tabDown && !camerap && Time.timeScale > 0)
+        {
             tPerson.SetActive(true);
             fPerson.SetActive(false);
             grappleScript.StopGrapple();
@@ -175,12 +181,7 @@ public class player : MonoBehaviour
         }
 
 
-        //------------------------Grounded movement update------------------------------------------
-        // update movement direction based on keys
-        float xdirection = 0.0f;
-        float zdirection = 0.0f;
         // dir is the direction to rotate based on movement
-
         string dir = "north";
         if ((upKey || downKey) && (!rightKey && !leftKey))
         {
@@ -219,19 +220,25 @@ public class player : MonoBehaviour
         else
             dir = "none";
 
-        //Debug.Log(playerModel.transform.rotation.eulerAngles.y);
+
+        // update movement direction based on keys
+        float xdirection = 0.0f;
+        float zdirection = 0.0f;
         xdirection = Mathf.Sin(Mathf.Deg2Rad * playerModel.transform.rotation.eulerAngles.y);
         zdirection = Mathf.Cos(Mathf.Deg2Rad * playerModel.transform.rotation.eulerAngles.y);
 
-        if (state != "jump" && state != "midAir" && grounded)
-            RotationUpdate(dir);
-        VelocityUpdate(xdirection, zdirection, dir);
-        PositionUpdate(xdirection, zdirection);
-
-        //------------------------End of Grounded movement update------------------------------------------
-
-        //------------------------------Grapple movement update--------------------------------------------
-
+        if (camerap) // handle 3rd person movement
+        {
+            if (state != "jump" && state != "midAir" && grounded) // don't rotate player if jumping
+                RotationUpdate(dir);
+            VelocityUpdate(xdirection, zdirection, dir);
+            PositionUpdate(xdirection, zdirection);
+        }
+        else // handle 1st person movement (don't rotate body in 1st person)
+        {
+            VelocityUpdate(xdirection, zdirection, dir);
+            PositionUpdate(xdirection, zdirection);
+        }
     }
 
     // uses a short raycast down to see if player model is on the ground
@@ -325,7 +332,7 @@ public class player : MonoBehaviour
     {
         //Debug.Log("Player Model Rotation: " + playerModel.transform.rotation.eulerAngles + " Body rotation: " + transform.rotation.eulerAngles + " Velocity: " + velocity + " Dir: " + xDir + "," + zDir);
         // vector velocity update
-        if ((upKey || downKey || leftKey || rightKey) && grounded && state != "grappling")
+        if ((upKey || downKey || leftKey || rightKey) && grounded && state != "grappling" && camerap)
         {
             if (Mathf.Abs(velocity.x) < Mathf.Abs((max_velocity + 2) * xDir) || (Mathf.Sign(velocity.x) != Mathf.Sign(xDir) && xDir != 0))
             {
@@ -341,7 +348,7 @@ public class player : MonoBehaviour
                     velocity.z = (max_velocity * zDir);
             }
         }
-        else if ((upKey || downKey || leftKey || rightKey) && state != "grappling")
+        else if (((upKey || downKey || leftKey || rightKey) && state != "grappling") || !camerap)
         {
             AirVelocityUpdate(dir);
         } 

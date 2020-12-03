@@ -17,12 +17,14 @@ public class GrappleGun : MonoBehaviour
     }
 
     void Update(){
-
-        if(Input.GetMouseButtonDown(1)){
+        Debug.Log(Time.timeScale);
+        if(Input.GetMouseButtonDown(1) && Time.timeScale > 0)
+        {
             StartGrapple();
         }
 
-        if(Input.GetMouseButtonUp(1)){
+        if(Input.GetMouseButtonUp(1) && Time.timeScale > 0)
+        {
             StopGrapple();
         }
     }

@@ -4304,7 +4304,6 @@ MonoBehaviour:
   gravity: 9.8
   grappleSpeed: 2
   grappleLength: 3
-  grappleUpSpeed: 11
   jumpLength: 1
   jumpStrength: 50
   timeBetweenJumps: 1
@@ -5035,7 +5034,6 @@ MonoBehaviour:
   gravity: 9.8
   grappleSpeed: 0.01
   grappleLength: 5
-  grappleUpSpeed: 15
   jumpLength: 0.3
   jumpStrength: 5
   timeBetweenJumps: 1
