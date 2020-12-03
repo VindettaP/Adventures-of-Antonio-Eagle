@@ -5,13 +5,8 @@ using UnityEngine;
 public class Grapple : MonoBehaviour
 {
     public LayerMask grappleAble;
-    public Transform grappleTip, camera, player;
+    public Transform grappleTip, cam, player;
     public float grappleDistance = 100f;
-    public float jointMaxMod = 0.8f;
-    public float jointMinMod = 0.2f;
-    public float jointSpring = 4.5f;
-    public float jointDamper = 7f;
-    public float jointMass = 4.5f;
     public bool grappling = false;
     public Vector3 grapplePoint;
 
@@ -26,7 +21,7 @@ public class Grapple : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+
     }
 
     // Update is called once per frame
@@ -50,7 +45,7 @@ public class Grapple : MonoBehaviour
     void StartGrapple()
     {
         RaycastHit hit;
-        if (Physics.Raycast(camera.position, camera.forward, out hit, grappleDistance, grappleAble))
+        if (Physics.Raycast(cam.position, cam.forward, out hit, grappleDistance, grappleAble))
         {
             grapplePoint = hit.point;
             grappling = true;

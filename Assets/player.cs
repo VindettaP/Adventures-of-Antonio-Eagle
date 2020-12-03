@@ -28,6 +28,7 @@ public class player : MonoBehaviour
     private Animator animation_controller;
     private CharacterController character_controller;
     private GameObject playerModel;
+    private GameObject modelRender;
     private bool upKey;
     private bool downKey;
     private bool leftKey;
@@ -35,7 +36,7 @@ public class player : MonoBehaviour
     private bool ctrlDown;
     private bool shiftDown;
     private bool spaceDown;
-    private bool turning;
+    //private bool turning;
     private bool grounded;
     private Grapple grappleScript;
     private float jumpTime = 0;
@@ -56,7 +57,10 @@ public class player : MonoBehaviour
         velocity = new Vector3(0, 0, 0);
         state = "idle";
         playerModel = GameObject.Find("PlayerModel");
-        turning = false;
+        modelRender = GameObject.Find("BodySkin");
+        // disable model render in first person
+        modelRender.GetComponent<SkinnedMeshRenderer>().enabled = false;
+        //turning = false;
         jumping = false;
         jumpTime = jumpLength;
         jumpCooldown = timeBetweenJumps;
@@ -106,6 +110,9 @@ public class player : MonoBehaviour
             // Set player model to face direction of first person camera when switching
             float y = fPerson.transform.eulerAngles.y;
             playerModel.transform.eulerAngles = new Vector3(playerModel.transform.eulerAngles.x, y, playerModel.transform.eulerAngles.z);
+
+            // disable model render in first person
+            modelRender.GetComponent<SkinnedMeshRenderer>().enabled = false;
         }
         else if (tabDown && !camerap && Time.timeScale > 0)
         {
@@ -113,6 +120,9 @@ public class player : MonoBehaviour
             fPerson.SetActive(false);
             grappleScript.StopGrapple();
             camerap = true;
+
+            // enable model render in third person
+            modelRender.GetComponent<SkinnedMeshRenderer>().enabled = true;
             //float targetAngle = Mathf.Atan2(movement_direction.x, movement_direction.z) * Mathf.Rad2Deg;
 
             //gameObject.transform.rotation = Quaternion.Euler(0, targetAngle, 0);
@@ -466,7 +476,7 @@ public class player : MonoBehaviour
 
         //Debug.Log("Player Model Rotation: " + playerModel.transform.rotation.eulerAngles + " Body rotation: " + transform.rotation.eulerAngles + " Velocity: " + velocity);
 
-        turning = false;
+        //turning = false;
 
         if (state != "jump" && !dontMove)
         {
@@ -476,7 +486,7 @@ public class player : MonoBehaviour
             }
             else
             {
-                turning = true;
+                //turning = true;
                 if ((target - playerModel.transform.rotation.eulerAngles.y + 360) % 360 > 180)
                 {
                     playerModel.transform.Rotate(new Vector3(0, -turn_speed * Time.deltaTime, 0));
