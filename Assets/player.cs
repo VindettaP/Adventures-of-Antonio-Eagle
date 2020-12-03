@@ -28,6 +28,7 @@ public class player : MonoBehaviour
     private Animator animation_controller;
     private CharacterController character_controller;
     private GameObject playerModel;
+    private GameObject modelRender;
     private bool upKey;
     private bool downKey;
     private bool leftKey;
@@ -35,7 +36,7 @@ public class player : MonoBehaviour
     private bool ctrlDown;
     private bool shiftDown;
     private bool spaceDown;
-    private bool turning;
+    //private bool turning;
     private bool grounded;
     private Grapple grappleScript;
     private float jumpTime = 0;
@@ -56,7 +57,10 @@ public class player : MonoBehaviour
         velocity = new Vector3(0, 0, 0);
         state = "idle";
         playerModel = GameObject.Find("PlayerModel");
-        turning = false;
+        modelRender = GameObject.Find("BodySkin");
+        // disable model render in first person
+        modelRender.GetComponent<SkinnedMeshRenderer>().enabled = false;
+        //turning = false;
         jumping = false;
         jumpTime = jumpLength;
         jumpCooldown = timeBetweenJumps;
@@ -97,16 +101,28 @@ public class player : MonoBehaviour
          * 6 = landing
         */
         //Changes between regular camera to the other camera 
-        if(tabDown && camerap){
+        if(tabDown && camerap && Time.timeScale > 0)
+        {
             fPerson.SetActive(true);
             tPerson.SetActive(false);
             camerap = false;
+            
+            // Set player model to face direction of first person camera when switching
+            float y = fPerson.transform.eulerAngles.y;
+            playerModel.transform.eulerAngles = new Vector3(playerModel.transform.eulerAngles.x, y, playerModel.transform.eulerAngles.z);
+
+            // disable model render in first person
+            modelRender.GetComponent<SkinnedMeshRenderer>().enabled = false;
         }
-        else if (tabDown && !camerap){
+        else if (tabDown && !camerap && Time.timeScale > 0)
+        {
             tPerson.SetActive(true);
             fPerson.SetActive(false);
             grappleScript.StopGrapple();
             camerap = true;
+
+            // enable model render in third person
+            modelRender.GetComponent<SkinnedMeshRenderer>().enabled = true;
             //float targetAngle = Mathf.Atan2(movement_direction.x, movement_direction.z) * Mathf.Rad2Deg;
 
             //gameObject.transform.rotation = Quaternion.Euler(0, targetAngle, 0);
@@ -175,12 +191,7 @@ public class player : MonoBehaviour
         }
 
 
-        //------------------------Grounded movement update------------------------------------------
-        // update movement direction based on keys
-        float xdirection = 0.0f;
-        float zdirection = 0.0f;
         // dir is the direction to rotate based on movement
-
         string dir = "north";
         if ((upKey || downKey) && (!rightKey && !leftKey))
         {
@@ -219,19 +230,25 @@ public class player : MonoBehaviour
         else
             dir = "none";
 
-        //Debug.Log(playerModel.transform.rotation.eulerAngles.y);
+
+        // update movement direction based on keys
+        float xdirection = 0.0f;
+        float zdirection = 0.0f;
         xdirection = Mathf.Sin(Mathf.Deg2Rad * playerModel.transform.rotation.eulerAngles.y);
         zdirection = Mathf.Cos(Mathf.Deg2Rad * playerModel.transform.rotation.eulerAngles.y);
 
-        if (state != "jump" && state != "midAir" && grounded)
-            RotationUpdate(dir);
-        VelocityUpdate(xdirection, zdirection, dir);
-        PositionUpdate(xdirection, zdirection);
-
-        //------------------------End of Grounded movement update------------------------------------------
-
-        //------------------------------Grapple movement update--------------------------------------------
-
+        if (camerap) // handle 3rd person movement
+        {
+            if (state != "jump" && state != "midAir" && grounded) // don't rotate player if jumping
+                RotationUpdate(dir);
+            VelocityUpdate(xdirection, zdirection, dir);
+            PositionUpdate(xdirection, zdirection);
+        }
+        else // handle 1st person movement (don't rotate body in 1st person)
+        {
+            VelocityUpdate(xdirection, zdirection, dir);
+            PositionUpdate(xdirection, zdirection);
+        }
     }
 
     // uses a short raycast down to see if player model is on the ground
@@ -248,7 +265,7 @@ public class player : MonoBehaviour
         Vector3 force = Vector3.Normalize(offset) * (distance - grappleLength) * grappleSpeed;
 
         velocity.x += force.x;
-        velocity.y += force.y / 1.5;
+        velocity.y += force.y / 1.5f;
         velocity.z += force.z;
     }
 
@@ -325,7 +342,7 @@ public class player : MonoBehaviour
     {
         //Debug.Log("Player Model Rotation: " + playerModel.transform.rotation.eulerAngles + " Body rotation: " + transform.rotation.eulerAngles + " Velocity: " + velocity + " Dir: " + xDir + "," + zDir);
         // vector velocity update
-        if ((upKey || downKey || leftKey || rightKey) && grounded && state != "grappling")
+        if ((upKey || downKey || leftKey || rightKey) && grounded && state != "grappling" && camerap)
         {
             if (Mathf.Abs(velocity.x) < Mathf.Abs((max_velocity + 2) * xDir) || (Mathf.Sign(velocity.x) != Mathf.Sign(xDir) && xDir != 0))
             {
@@ -341,7 +358,7 @@ public class player : MonoBehaviour
                     velocity.z = (max_velocity * zDir);
             }
         }
-        else if ((upKey || downKey || leftKey || rightKey) && state != "grappling")
+        else if (((upKey || downKey || leftKey || rightKey) && state != "grappling") || !camerap)
         {
             AirVelocityUpdate(dir);
         } 
@@ -459,7 +476,7 @@ public class player : MonoBehaviour
 
         //Debug.Log("Player Model Rotation: " + playerModel.transform.rotation.eulerAngles + " Body rotation: " + transform.rotation.eulerAngles + " Velocity: " + velocity);
 
-        turning = false;
+        //turning = false;
 
         if (state != "jump" && !dontMove)
         {
@@ -469,7 +486,7 @@ public class player : MonoBehaviour
             }
             else
             {
-                turning = true;
+                //turning = true;
                 if ((target - playerModel.transform.rotation.eulerAngles.y + 360) % 360 > 180)
                 {
                     playerModel.transform.Rotate(new Vector3(0, -turn_speed * Time.deltaTime, 0));
