@@ -97,12 +97,12 @@ public class player : MonoBehaviour
          * 6 = landing
         */
         //Changes between regular camera to the other camera 
-        if(tabDown && camerap){
+        if(tabDown && camerap && Time.timeScale == 1){
             fPerson.SetActive(true);
             tPerson.SetActive(false);
             camerap = false;
         }
-        else if (tabDown && !camerap){
+        else if (tabDown && !camerap && Time.timeScale == 1){
             tPerson.SetActive(true);
             fPerson.SetActive(false);
             grappleScript.StopGrapple();

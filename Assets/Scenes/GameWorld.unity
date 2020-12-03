@@ -1769,7 +1769,7 @@ MonoBehaviour:
   thirdPersonMinAngle: -12
   thirdPersonMaxAngle: 35
   playerBody: {fileID: 1754091969}
-  playerModel: {fileID: 0}
+  playerModel: {fileID: 1360280433}
   firstPerson: 1
   cam: {fileID: 569659956}
 --- !u!81 &569659959
@@ -2260,7 +2260,7 @@ MonoBehaviour:
   thirdPersonMinAngle: -12
   thirdPersonMaxAngle: 35
   playerBody: {fileID: 1754091969}
-  playerModel: {fileID: 0}
+  playerModel: {fileID: 1360280433}
   firstPerson: 0
   cam: {fileID: 768788631}
 --- !u!114 &768788636
@@ -4304,7 +4304,6 @@ MonoBehaviour:
   gravity: 9.8
   grappleSpeed: 2
   grappleLength: 3
-  grappleUpSpeed: 11
   jumpLength: 1
   jumpStrength: 50
   timeBetweenJumps: 1
@@ -5035,7 +5034,6 @@ MonoBehaviour:
   gravity: 9.8
   grappleSpeed: 0.01
   grappleLength: 5
-  grappleUpSpeed: 15
   jumpLength: 0.3
   jumpStrength: 5
   timeBetweenJumps: 1
