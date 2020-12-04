@@ -318,12 +318,14 @@ public class player : MonoBehaviour
 
         if (!dontMove)
         {
+            Vector3 velocityDir = Vector3.Normalize(new Vector3(velocity.x, 0, velocity.z));
             if (Mathf.Abs(velocity.x) < Mathf.Abs((max_velocity + 2) * xDir2) || (Mathf.Sign(velocity.x) != Mathf.Sign(xDir2) && xDir2 != 0))
             {
                 velocity.x += acceleration * xDir2;
                 if (Mathf.Abs(velocity.x) > Mathf.Abs(max_velocity * xDir2))
                 {
-                    velocity.x = (max_velocity * xDir2);
+                    //velocity.x = (max_velocity * xDir2);
+                    velocity.x += airDrag * velocityDir.x;
                 }
             }
 
@@ -332,7 +334,8 @@ public class player : MonoBehaviour
                 velocity.z += acceleration * zDir2;
                 if (Mathf.Abs(velocity.z) > Mathf.Abs(max_velocity * zDir2))
                 {
-                    velocity.z = (max_velocity * zDir2);
+                    //velocity.z = (max_velocity * zDir2);
+                    velocity.z += airDrag * velocityDir.z;
                 }
             }
         }
@@ -340,6 +343,8 @@ public class player : MonoBehaviour
 
     void VelocityUpdate(float xDir, float zDir, string dir)
     {
+        Vector3 velocityDir = Vector3.Normalize(new Vector3(velocity.x, 0, velocity.z));
+
         //Debug.Log("Player Model Rotation: " + playerModel.transform.rotation.eulerAngles + " Body rotation: " + transform.rotation.eulerAngles + " Velocity: " + velocity + " Dir: " + xDir + "," + zDir);
         // vector velocity update
         if ((upKey || downKey || leftKey || rightKey) && grounded && state != "grappling" && camerap)
@@ -348,20 +353,23 @@ public class player : MonoBehaviour
             {
                 velocity.x += acceleration * xDir;
                 if (Mathf.Abs(velocity.x) > Mathf.Abs(max_velocity * xDir))
-                    velocity.x = (max_velocity * xDir);
+                    velocity.x += drag * velocityDir.x;
             }
 
             if (Mathf.Abs(velocity.z) < Mathf.Abs((max_velocity + 2) * zDir) || (Mathf.Sign(velocity.z) != Mathf.Sign(zDir) && zDir != 0))
             {
                 velocity.z += acceleration * zDir;
                 if (Mathf.Abs(velocity.z) > Mathf.Abs(max_velocity * zDir))
-                    velocity.z = (max_velocity * zDir);
+                    velocity.z += drag * velocityDir.z;
             }
         }
-        else if (((upKey || downKey || leftKey || rightKey) && state != "grappling") || !camerap)
+        else if ((upKey || downKey || leftKey || rightKey) && state != "grappling")
         {
             AirVelocityUpdate(dir);
-        } 
+        }
+
+        
+        velocityDir = Vector3.Normalize(new Vector3(velocity.x, 0, velocity.z));  // re-update velocity
 
         if (Mathf.Abs(velocity.x) > 0)
         {
@@ -369,20 +377,10 @@ public class player : MonoBehaviour
                 velocity.x = 0;
             else
             {
-                if (velocity.x > 0)
-                {
-                    if (grounded)
-                        velocity.x -= drag;
-                    else
-                        velocity.x -= airDrag;
-                }
+                if (grounded)
+                    velocity.x -= drag * velocityDir.x;
                 else
-                {
-                    if (grounded)
-                        velocity.x += drag;
-                    else
-                        velocity.x += airDrag;
-                }
+                    velocity.x -= airDrag * velocityDir.x;
             }
         }
         if (Mathf.Abs(velocity.z) > 0)  
@@ -391,20 +389,10 @@ public class player : MonoBehaviour
                 velocity.z = 0;
             else
             {
-                if (velocity.z > 0)
-                {
-                    if (grounded)
-                        velocity.z -= drag;
-                    else
-                        velocity.z -= airDrag;
-                }
+                if (grounded)
+                    velocity.z -= drag * velocityDir.z;
                 else
-                {
-                    if (grounded)
-                        velocity.z += drag;
-                    else
-                        velocity.z += airDrag;
-                }
+                    velocity.z -= airDrag * velocityDir.z;
             }
         }
 

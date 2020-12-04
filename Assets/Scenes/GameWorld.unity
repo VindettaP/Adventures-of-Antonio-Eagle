@@ -5028,7 +5028,7 @@ MonoBehaviour:
   walking_velocity: 10
   velocity: {x: 0, y: 0, z: 0}
   max_velocity: 0
-  acceleration: 10
+  acceleration: 1
   turn_speed: 2000
   gravity: 9.8
   grappleSpeed: 0.01
@@ -5036,7 +5036,7 @@ MonoBehaviour:
   jumpLength: 0.3
   jumpStrength: 5
   timeBetweenJumps: 1
-  drag: 0.1
+  drag: 0.5
   airDrag: 0.02
   state: 
   fPerson: {fileID: 569659956}
