@@ -42,6 +42,7 @@ public class player : MonoBehaviour
     private float jumpTime = 0;
     private bool jumping;
     private float jumpCooldown = 0;
+    private GameObject cursor;
 
     private bool tabDown;
     private bool camerap;
@@ -58,6 +59,7 @@ public class player : MonoBehaviour
         state = "idle";
         playerModel = GameObject.Find("PlayerModel");
         modelRender = GameObject.Find("BodySkin");
+        cursor = GameObject.Find("AimingCursor");
         // disable model render in first person
         modelRender.GetComponent<SkinnedMeshRenderer>().enabled = false;
         //turning = false;
@@ -106,7 +108,10 @@ public class player : MonoBehaviour
             fPerson.SetActive(true);
             tPerson.SetActive(false);
             camerap = false;
-            
+
+            // Enable aiming cursor in first person
+            cursor.SetActive(true);
+
             // Set player model to face direction of first person camera when switching
             float y = fPerson.transform.eulerAngles.y;
             playerModel.transform.eulerAngles = new Vector3(playerModel.transform.eulerAngles.x, y, playerModel.transform.eulerAngles.z);
@@ -123,10 +128,9 @@ public class player : MonoBehaviour
 
             // enable model render in third person
             modelRender.GetComponent<SkinnedMeshRenderer>().enabled = true;
-            //float targetAngle = Mathf.Atan2(movement_direction.x, movement_direction.z) * Mathf.Rad2Deg;
 
-            //gameObject.transform.rotation = Quaternion.Euler(0, targetAngle, 0);
-
+            // disable aiming cursor in third person
+            cursor.SetActive(false);
         }
 
         if (grappleScript.grappling)
