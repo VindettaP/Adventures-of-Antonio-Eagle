@@ -93,6 +93,8 @@ public class player : MonoBehaviour
         spaceDown = Input.GetKey(KeyCode.Space);
         tabDown = Input.GetKeyDown(KeyCode.Tab);
 
+        Debug.Log(velocity);
+
         // set state based on input
         /* in animation controller, states controlled by int
          * 0 = idle
@@ -132,26 +134,27 @@ public class player : MonoBehaviour
             // disable aiming cursor in third person
             cursor.SetActive(false);
         }
-
+        
         if (grappleScript.grappling)
         {
             state = "grappling";
             jumping = true;
         }
-        else if (jumpTime < 0 && jumping && !grounded) // still in midair post jump
+        else if (!grounded) // still in midair post jump
             state = "midAir";
-        else if (jumpTime < 0 && grounded && jumping) // landed from a jump
+        else if ((jumpTime < 0 && grounded && jumping) || velocity.y < -0.6f) // landed from a jump
         {
             state = "landing";
             jumping = false;
             jumpCooldown = timeBetweenJumps;
-            jumpTime = jumpLength;
+            jumpTime = jumpLength; // reset jump timer
+            velocity.y = -0.5f; // reset velocity
         }
-        else if (spaceDown && !jumping && jumpCooldown < 0)
+        else if ((spaceDown && !jumping && jumpCooldown < 0) || (jumping && jumpTime > 0))
         {
             state = "jumpStart";
             jumping = true;
-            jumpTime = jumpLength; // reset jump timer
+            //jumpTime = jumpLength; // reset jump timer
         }
         else if (shiftDown && (leftKey || rightKey || upKey || downKey))
             state = "run";
@@ -377,7 +380,7 @@ public class player : MonoBehaviour
 
         if (Mathf.Abs(velocity.x) > 0)
         {
-            if (Mathf.Abs(velocity.x) < 0.01f)  // set to 0 if we get close enough
+            if (Mathf.Abs(velocity.x) < drag)  // set to 0 if we get close enough
                 velocity.x = 0;
             else
             {
@@ -389,7 +392,7 @@ public class player : MonoBehaviour
         }
         if (Mathf.Abs(velocity.z) > 0)  
         {
-            if (Mathf.Abs(velocity.z) < 0.01f)
+            if (Mathf.Abs(velocity.z) < drag)
                 velocity.z = 0;
             else
             {
