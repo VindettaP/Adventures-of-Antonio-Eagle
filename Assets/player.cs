@@ -142,7 +142,7 @@ public class player : MonoBehaviour
         }
         else if (!grounded) // still in midair post jump
             state = "midAir";
-        else if ((jumpTime < 0 && grounded && jumping) || velocity.y < -0.6f) // landed from a jump
+        else if ((jumpTime < 0 && grounded && jumping) || (velocity.y < -0.6f && grounded)) // landed from a jump
         {
             state = "landing";
             jumping = false;
@@ -377,10 +377,15 @@ public class player : MonoBehaviour
 
         
         velocityDir = Vector3.Normalize(new Vector3(velocity.x, 0, velocity.z));  // re-update velocity
+        float d = 0.0f;
+        if (grounded)
+            d = drag;
+        else
+            d = airDrag;
 
         if (Mathf.Abs(velocity.x) > 0)
         {
-            if (Mathf.Abs(velocity.x) < drag)  // set to 0 if we get close enough
+            if (Mathf.Abs(velocity.x) < d)  // set to 0 if we get close enough
                 velocity.x = 0;
             else
             {
@@ -392,7 +397,7 @@ public class player : MonoBehaviour
         }
         if (Mathf.Abs(velocity.z) > 0)  
         {
-            if (Mathf.Abs(velocity.z) < drag)
+            if (Mathf.Abs(velocity.z) < d)
                 velocity.z = 0;
             else
             {

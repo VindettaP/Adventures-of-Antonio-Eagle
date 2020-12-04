@@ -5112,7 +5112,7 @@ MonoBehaviour:
   jumpLength: 0.3
   jumpStrength: 5
   timeBetweenJumps: 1
-  drag: 0.5
+  drag: 0.1
   airDrag: 0.02
   state: 
   fPerson: {fileID: 569659956}
