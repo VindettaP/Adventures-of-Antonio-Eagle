@@ -101,12 +101,8 @@ public class player : MonoBehaviour
          * 6 = landing
         */
         //Changes between regular camera to the other camera 
-<<<<<<< HEAD
-        if(tabDown && camerap && Time.timeScale == 1){
-=======
         if(tabDown && camerap && Time.timeScale > 0)
         {
->>>>>>> 785a8023381dfa718eb2393c5658d07af877564a
             fPerson.SetActive(true);
             tPerson.SetActive(false);
             camerap = false;
@@ -118,12 +114,8 @@ public class player : MonoBehaviour
             // disable model render in first person
             modelRender.GetComponent<SkinnedMeshRenderer>().enabled = false;
         }
-<<<<<<< HEAD
-        else if (tabDown && !camerap && Time.timeScale == 1){
-=======
         else if (tabDown && !camerap && Time.timeScale > 0)
         {
->>>>>>> 785a8023381dfa718eb2393c5658d07af877564a
             tPerson.SetActive(true);
             fPerson.SetActive(false);
             grappleScript.StopGrapple();
