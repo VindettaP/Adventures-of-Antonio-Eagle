@@ -25,6 +25,8 @@ public class player : MonoBehaviour
 
     public string state;
 
+    private bool gravenable = false;
+    private float gravconst;
     private Animator animation_controller;
     private CharacterController character_controller;
     private GameObject playerModel;
@@ -36,6 +38,8 @@ public class player : MonoBehaviour
     private bool ctrlDown;
     private bool shiftDown;
     private bool spaceDown;
+
+    private bool eDown;
     //private bool turning;
     private bool grounded;
     private Grapple grappleScript;
@@ -47,8 +51,9 @@ public class player : MonoBehaviour
     private bool tabDown;
     private bool camerap;
     public GameObject fPerson, tPerson;
-    
-
+    public float dashstr;
+    public int dashes;
+    private bool dashing;
     // Start is called before the first frame update
     void Start()
     {
@@ -68,6 +73,9 @@ public class player : MonoBehaviour
         jumpCooldown = timeBetweenJumps;
         grappleScript = GameObject.Find("Grapple").GetComponent<Grapple>();
         camerap = false;
+        gravconst = gravity;
+        dashes = 0;
+        dashing = false;
     }
 
     // Update is called once per frame
@@ -78,6 +86,11 @@ public class player : MonoBehaviour
 
         //Debug.Log("Grounded: " + grounded + " Jumping: " + jumping + " JumpTime: " + jumpTime + " State: " + state + " Velocity: " + velocity);
 
+        if (gravenable)
+            gravity = gravconst;
+        else
+            gravity = 0;
+        
         if (jumping)
             jumpTime -= Time.deltaTime; // decrease time in jump while we are jumping
         else
@@ -91,6 +104,7 @@ public class player : MonoBehaviour
         ctrlDown = Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
         shiftDown = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
         spaceDown = Input.GetKey(KeyCode.Space);
+        eDown = Input.GetKeyDown(KeyCode.E);
         tabDown = Input.GetKeyDown(KeyCode.Tab);
 
         Debug.Log(velocity);
@@ -163,6 +177,25 @@ public class player : MonoBehaviour
         else
             state = "idle";
 
+        //DASHING
+        Debug.Log(grounded);
+        if(eDown && !grounded && (velocity.x != 0 || velocity.z != 0)){
+            dashing = true;
+        }
+        if(dashing == true && dashes == 0){
+            velocity.x = dashstr;
+            velocity.z = dashstr;
+            velocity.y = 0;
+            dashes = 1;
+        }
+
+        if(!grounded){
+            gravity = gravconst;
+        }
+        if(grounded){
+            dashes = 0;
+            dashing = false;
+        }
         // FSM for character behavior, also update velocity and handle turning
         switch (state)
         {
