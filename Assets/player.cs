@@ -17,6 +17,7 @@ public class player : MonoBehaviour
     public float gravity = 9.8f;
     public float grappleSpeed = 2.0f;
     public float grappleLength = 3f;
+    public float dashLength = 0.5f;
     public float jumpLength = 1.0f;
     public float jumpStrength = 50f;
     public float timeBetweenJumps = 1f;
@@ -59,6 +60,9 @@ public class player : MonoBehaviour
     public float dashstr;
     public int dashes;
     private bool dashing;
+    private float dashTimeLeft;
+    private float xDirDash = 0;
+    private float zDirDash = 0;
     // Start is called before the first frame update
     void Start()
     {
@@ -274,67 +278,76 @@ public class player : MonoBehaviour
         else
             dir = "none";
 
-          //DASHING
-        float xDir2 = 0;
-        float zDir2 = 0;
-        switch (dir)
-        {
-            case "north":
-                xDir2 = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y));
-                zDir2 = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y));
-                break;
-            case "south":
-                xDir2 = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 180));
-                zDir2 = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 180));
-                break;
-            case "east":
-                xDir2 = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 270));
-                zDir2 = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 270));
-                break;
-            case "west":
-                xDir2 = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 90));
-                zDir2 = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 90));
-                break;
-            case "northEast":
-                xDir2 = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 315));
-                zDir2 = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 315));
-                break;
-            case "northWest":
-                xDir2 = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 45));
-                zDir2 = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 45));
-                break;
-            case "southEast":
-                xDir2 = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 225));
-                zDir2 = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 225));
-                break;
-            case "southWest":
-                xDir2 = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 135));
-                zDir2 = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 135));
-                break;
-            case "none":
-                xDir2 = 0;
-                zDir2 = 0;
-                break;
-            default:
-                xDir2 = 0;
-                zDir2 = 0;
-                break;
-        }
 
+        //DASHING
         if (dashUnlocked)
         {
-            if (eDown && !grounded && (velocity.x != 0 || velocity.z != 0))
+            if (eDown && !grounded)
             {
                 dashing = true;
+                dashTimeLeft = dashLength;
+
+                // Set direction for dash
+                switch (dir)
+                {
+                    case "north":
+                        xDirDash = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y));
+                        zDirDash = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y));
+                        break;
+                    case "south":
+                        xDirDash = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 180));
+                        zDirDash = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 180));
+                        break;
+                    case "east":
+                        xDirDash = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 270));
+                        zDirDash = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 270));
+                        break;
+                    case "west":
+                        xDirDash = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 90));
+                        zDirDash = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 90));
+                        break;
+                    case "northEast":
+                        xDirDash = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 315));
+                        zDirDash = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 315));
+                        break;
+                    case "northWest":
+                        xDirDash = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 45));
+                        zDirDash = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 45));
+                        break;
+                    case "southEast":
+                        xDirDash = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 225));
+                        zDirDash = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 225));
+                        break;
+                    case "southWest":
+                        xDirDash = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 135));
+                        zDirDash = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 135));
+                        break;
+                    case "none":
+                        xDirDash = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y));
+                        zDirDash = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y));
+                        break;
+                    default:
+                        xDirDash = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y));
+                        zDirDash = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y));
+                        break;
+                }
             }
-            if (dashing == true && dashes == 0)
+            if (dashing == true && dashTimeLeft > 0)
             {
-                velocity.x = dashstr * xDir2;
-                velocity.z = dashstr * zDir2;
+                dashTimeLeft -= Time.deltaTime;
+                velocity.x = dashstr * xDirDash;
+                velocity.z = dashstr * zDirDash;
                 velocity.y = 0;
-                dashes = 1;
+            }
+            if (dashTimeLeft <= 0 && dashing == true)
+            {
+                dashing = false;
+                velocity.x *= 0.2f; 
+                velocity.z *= 0.2f;
             }
         }
+
+        Debug.Log("Velocity: " + velocity);
 
         if(!grounded){
             gravity = gravconst;
@@ -515,8 +528,6 @@ public class player : MonoBehaviour
                     velocity.z -= airDrag * velocityDir.z;
             //}
         }
-
-        Debug.Log("Velocity: " + velocity);
 
         // handle jumping
         if (jumping && (jumpTime > 0))

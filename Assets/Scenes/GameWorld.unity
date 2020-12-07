@@ -3574,6 +3574,7 @@ MonoBehaviour:
   grappleDistance: 100
   grappling: 0
   grapplePoint: {x: 0, y: 0, z: 0}
+  grappleUnlocked: 0
 --- !u!120 &1144150664
 LineRenderer:
   m_ObjectHideFlags: 0
@@ -4379,12 +4380,15 @@ MonoBehaviour:
   gravity: 9.8
   grappleSpeed: 2
   grappleLength: 3
+  dashLength: 0.5
   jumpLength: 1
   jumpStrength: 50
   timeBetweenJumps: 1
   drag: 0.1
   airDrag: 0.02
   doubleJumpUnlocked: 0
+  grappleUnlocked: 0
+  dashUnlocked: 0
   state: 
   fPerson: {fileID: 0}
   tPerson: {fileID: 0}
@@ -5112,16 +5116,19 @@ MonoBehaviour:
   gravity: 9.8
   grappleSpeed: 0.01
   grappleLength: 5
+  dashLength: 0.5
   jumpLength: 0.3
   jumpStrength: 5
   timeBetweenJumps: 0.5
   drag: 0.25
   airDrag: 0.02
   doubleJumpUnlocked: 1
+  grappleUnlocked: 1
+  dashUnlocked: 1
   state: 
   fPerson: {fileID: 569659956}
   tPerson: {fileID: 768788631}
-  dashstr: 25
+  dashstr: 50
   dashes: 0
 --- !u!143 &1754091971
 CharacterController:
