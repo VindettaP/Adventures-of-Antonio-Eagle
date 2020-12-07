@@ -93,23 +93,24 @@ public class player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        Debug.Log("DJ Time: " + doubleJumpTime + " DJ Status: " + doubleJumped);
+
         // Unlock grapple if we get it
         grappleScript.grappleUnlocked = grappleUnlocked;
 
         // Check if player model is grounded
         grounded = IsGrounded();
 
-        //Debug.Log("Grounded: " + grounded + " Jumping: " + jumping + " JumpTime: " + jumpTime + " State: " + state + " Velocity: " + velocity);
-
         if (gravenable)
             gravity = gravconst;
         else
             gravity = 0;
 
+        if (doubleJumped)
+            doubleJumpTime -= Time.deltaTime;
+
         if (jumping)
         {
-            if (doubleJumped)
-                doubleJumpTime -= Time.deltaTime;
             jumpTime -= Time.deltaTime; // decrease time in jump while we are jumping
         }
         else
@@ -348,8 +349,6 @@ public class player : MonoBehaviour
             }
         }
 
-        Debug.Log("Velocity: " + velocity);
-
         if(!grounded){
             gravity = gravconst;
         }
@@ -472,7 +471,6 @@ public class player : MonoBehaviour
     {
         Vector3 velocityDir = Vector3.Normalize(new Vector3(velocity.x, 0, velocity.z));
 
-        //Debug.Log("Player Model Rotation: " + playerModel.transform.rotation.eulerAngles + " Body rotation: " + transform.rotation.eulerAngles + " Velocity: " + velocity + " Dir: " + xDir + "," + zDir);
         // vector velocity update
         if ((upKey || downKey || leftKey || rightKey) && grounded && state != "grappling" && camerap)
         {
@@ -604,8 +602,6 @@ public class player : MonoBehaviour
         }
         target = target % 360;
         //target = target + tPerson.transform.eulerAngles.y;
-
-        //Debug.Log("Player Model Rotation: " + playerModel.transform.rotation.eulerAngles + " Body rotation: " + transform.rotation.eulerAngles + " Velocity: " + velocity);
 
         //turning = false;
 
