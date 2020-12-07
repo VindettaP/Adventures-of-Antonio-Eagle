@@ -56,9 +56,14 @@ public class Level : MonoBehaviour
     public int grapple_point_spacing = 3;
     public int num_grapples = 4;
     public GameObject player_prefab;
+    public GameObject win_popup;
+    public GameObject lose_popup;
+    public Text clock_text;
+    public Camera overhead_cam;
 
     // fields/variables accessible from other scripts
     internal GameObject player;
+    internal bool player_entered_goal = false;
 
     // fields/variables needed only from this script
     private Bounds bounds;                   // size of ground plane in world space coordinates 
@@ -68,9 +73,12 @@ public class Level : MonoBehaviour
     private float playerZ = -1;
     private int hW = -1;
     private int hL = -1;
+    private float timeSpent = 0.0f;
+    private float finalTime = 0.0f;
     private List<TileType>[,] sol;
+    private GameObject cursor;
 
-    
+
 
     // feel free to put more fields here, if you need them e.g, add AudioClips that you can also reference them from other scripts
     // for sound, make also sure that you have ONE audio listener active (either the listener in the FPS or the main camera, switch accordingly)
@@ -113,11 +121,18 @@ public class Level : MonoBehaviour
     // Use this for initialization
     void Start()
     {
+        // Grab aiming cursor
+        cursor = GameObject.Find("AimingCursor");
+
+        // Disable overhead cam
+        overhead_cam.gameObject.SetActive(false);
+
         // initialize internal/private variables
-        bounds = GetComponent<Collider>().bounds; 
+        bounds = GetComponent<Collider>().bounds;
 
         // disable UI elements
-
+        win_popup.gameObject.SetActive(false);
+        lose_popup.gameObject.SetActive(false);
 
         // initialize 2D grid
         List<TileType>[,] grid = new List<TileType>[width, length];
@@ -126,13 +141,13 @@ public class Level : MonoBehaviour
 
         // Place some random grapple points to start
         pos_grapples = new List<int[]>();
-        
+
 
         // create the wall perimeter of the level, and let the interior as unassigned
         // then try to assign variables to satisfy all constraints
         // *rarely* it might be impossible to satisfy all constraints due to initialization
         // in this case of no success, we'll restart the random initialization and try to re-solve the CSP
-        bool success = false;        
+        bool success = false;
         while (!success)
         {
             int wr, lr;
@@ -207,7 +222,7 @@ public class Level : MonoBehaviour
                 Debug.Log("Could not find valid solution - will try again");
                 unassigned.Clear();
                 grid = new List<TileType>[width, length];
-                function_calls = 0; 
+                function_calls = 0;
             }
         }
 
@@ -290,10 +305,6 @@ public class Level : MonoBehaviour
         return false;
     }
 
-    // *** YOU NEED TO COMPLETE THIS FUNCTION  ***
-    // must return true if there are three (or more) interior consecutive wall blocks either horizontally or vertically
-    // by interior, we mean walls that do not belong to the perimeter of the grid
-    // e.g., a grid configuration: "FLOOR - WALL - WALL - WALL - FLOOR" is not valid
     bool TooLongWall(List<TileType>[,] grid)
     {
         bool oneAbove = false;
@@ -307,7 +318,7 @@ public class Level : MonoBehaviour
             {
                 oneAbove = false;
                 oneBelow = false;
-                oneLeft = false; 
+                oneLeft = false;
                 oneRight = false;  // reset flags
 
                 // Ignore edges and non-walls
@@ -340,7 +351,6 @@ public class Level : MonoBehaviour
         return false;
     }
 
-
     // check if attempted assignment is consistent with the constraints or not
     bool CheckConsistency(List<TileType>[,] grid, int[] cell_pos, TileType t)
     {
@@ -359,7 +369,6 @@ public class Level : MonoBehaviour
         return areWeConsistent;
     }
 
-
     // euclidian distance from point to other point rounded down
     float heur(int sw, int sl, int gw, int gl)
     {
@@ -375,7 +384,7 @@ public class Level : MonoBehaviour
         // if there are too many recursive function evaluations, then backtracking has become too slow (or constraints cannot be satisfied)
         // to provide a reasonable amount of time to start the level, we put a limit on the total number of recursive calls
         // if the number of calls exceed the limit, then it's better to try a different initialization
-        if (function_calls++ > 100000)       
+        if (function_calls++ > 100000)
             return false;
 
         // we are done!
@@ -432,26 +441,18 @@ public class Level : MonoBehaviour
         float zp = bounds.min[2] + (float)lr * (bounds.size[2] / (float)length);
 
         //**********INSTANTIATE PLAYER HERE*********************
-        /*
-        fps_player_obj = Instantiate(fps_prefab);
-        fps_player_obj.name = "PLAYER";
-        // character is placed above the level so that in the beginning, he appears to fall down onto the maze
-        fps_player_obj.transform.position = new Vector3(x + 0.5f, 2.0f * story_height, z + 0.5f);
-        AudioSource audioSource = fps_player_obj.AddComponent<AudioSource>();
-        source = fps_player_obj.GetComponent<AudioSource>(); */
         playerX = xp;
-        playerZ = zp; 
-        float yp = bounds.min[1];
-        player = Instantiate(player_prefab);
+        playerZ = zp;
+        player = Instantiate(player_prefab,
+            new Vector3(xp + bounds.size[0] / (2 * (float)width), bounds.min[1] + air_platform_height + 5.0f, zp + bounds.size[2] / (2 * (float)length)),
+            Quaternion.identity);
         player.name = "PlayerBody";
-        player.transform.position = new Vector3(xp + bounds.size[0] / (2 * (float)width), bounds.min[1] + air_platform_height + 5.0f, zp + bounds.size[2] / (2 * (float)length));
         //*********************************************************
-        
+
 
         // place an exit from the maze at location (wee, lee) in terms of grid coordinates (integers)
         // destroy the wall segment there - the grid will be used to place a house
         // the exist will be placed as far as away from the character (yet, with some randomness, so that it's not always located at the corners)
-        int max_dist = -1;
         int wee = -1;
         int lee = -1;
 
@@ -474,7 +475,6 @@ public class Level : MonoBehaviour
                         continue;
                     if (we == width - 1 && le == length - 1)
                         continue;
-
                     if (we == 0 || le == 0 || wee == length - 1 || lee == length - 1)
                     {
                         // randomize selection
@@ -503,7 +503,7 @@ public class Level : MonoBehaviour
         }
 
         hW = wee;
-        hL = lee; 
+        hL = lee;
         //**************************************************************************
 
         // *** YOU NEED TO COMPLETE THIS PART OF THE FUNCTION  ***
@@ -538,7 +538,7 @@ public class Level : MonoBehaviour
             loopCount++;
 
             float minf = float.MaxValue; // initialize with high cost
-            foreach(Coord coord in q.Values)
+            foreach (Coord coord in q.Values)
             {
                 if (lookTable[coord.x, coord.y].f < minf)
                 {
@@ -548,11 +548,11 @@ public class Level : MonoBehaviour
             }
 
             // check if current is goal
-            if (q[current].x == wee && q[current].y == lee) 
+            if (q[current].x == wee && q[current].y == lee)
             {
                 final = new Coord(q[current].x, q[current].y);
                 break;
-            } 
+            }
 
             Coord cur = q[current];
 
@@ -598,7 +598,7 @@ public class Level : MonoBehaviour
                         // check if node is in q
                         if (!q.ContainsKey(lookTable[toCheck.x, toCheck.y].key))
                             q.Add(lookTable[toCheck.x, toCheck.y].key, new Coord(toCheck.x, toCheck.y));  // add to q if not in q
-                        
+
                     }
                 }
 
@@ -641,6 +641,22 @@ public class Level : MonoBehaviour
 
                 if ((w == wee) && (l == lee)) // this is the exit
                 {
+                    GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                    cube.name = "WALL";
+                    cube.transform.localScale = new Vector3(bounds.size[0] / (float)width, air_platform_height, bounds.size[2] / (float)length);
+                    cube.transform.position = new Vector3(x + bounds.size[0] / (2 * (float)width), y + air_platform_height / 2.0f, z + bounds.size[2] / (2 * (float)length));
+                    cube.GetComponent<Renderer>().material.color = new Color(0.6f, 0.8f, 0.8f);
+
+                    GameObject goal = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                    goal.name = "Goal";
+                    goal.transform.localScale = new Vector3(bounds.size[0] / (float)width, 0.1f, bounds.size[2] / (float)length);
+                    goal.transform.position = new Vector3(x + bounds.size[0] / (2 * (float)width), y + 0.1f + air_platform_height, z + bounds.size[2] / (2 * (float)length));
+                    goal.GetComponent<Renderer>().material.color = new Color(0.6f, 2f, 0.8f);
+                    goal.AddComponent<BoxCollider>();
+                    goal.GetComponent<BoxCollider>().isTrigger = true;
+                    goal.GetComponent<BoxCollider>().size = new Vector3(1.0f, story_height * 10.0f, 1.0f);
+                    Destroy(goal.GetComponent<SphereCollider>());
+                    goal.AddComponent<Goal>();
                     //********************INSTANTIATE A GOAL HERE*******************************
                     /*
                     GameObject house = Instantiate(house_prefab, new Vector3(0, 0, 0), Quaternion.identity);
@@ -654,7 +670,6 @@ public class Level : MonoBehaviour
                         house.transform.Rotate(0.0f, 90.0f, 0.0f);
                     else if (w == width - 1)
                         house.transform.Rotate(0.0f, 180.0f, 0.0f);
-
                     house.AddComponent<BoxCollider>();
                     house.GetComponent<BoxCollider>().isTrigger = true;
                     house.GetComponent<BoxCollider>().size = new Vector3(3.0f, 3.0f, 3.0f);
@@ -675,7 +690,6 @@ public class Level : MonoBehaviour
                     GameObject virus = Instantiate(virus_prefab, new Vector3(0, 0, 0), Quaternion.identity);
                     virus.name = "COVID";
                     virus.transform.position = new Vector3(x + 0.5f, y + Random.Range(1.0f, story_height / 2.0f), z + 0.5f);
-
                     virus.AddComponent<Virus>();
                     virus.GetComponent<Rigidbody>().mass = 10000; */
                 }
@@ -703,7 +717,6 @@ public class Level : MonoBehaviour
                     water.name = "WATER";
                     water.transform.localScale = new Vector3(0.5f * bounds.size[0] / (float)width, 1.0f, 0.5f * bounds.size[2] / (float)length);
                     water.transform.position = new Vector3(x + 0.5f, y + 0.1f, z + 0.5f);
-
                     GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
                     cube.name = "WATER_BOX";
                     cube.transform.localScale = new Vector3(bounds.size[0] / (float)width, story_height / 20.0f, bounds.size[2] / (float)length);
@@ -721,13 +734,37 @@ public class Level : MonoBehaviour
     // Reloads the scene to give the player a new map to play on
     public void PlayAgain()
     {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-        //overheadCam.GetComponent<AudioListener>().enabled = false;
+        SceneManager.LoadScene("PCGLevel");
     }
 
     // Reloads the level and lets the player try again
     public void TryLevelAgain()
     {
+        // Disable camera
+        overhead_cam.gameObject.SetActive(false);
+
+        // Spawn player at beginning
+        player = Instantiate(player_prefab,
+            new Vector3(playerX + bounds.size[0] / (2 * (float)width), bounds.min[1] + air_platform_height + 5.0f, playerZ + bounds.size[2] / (2 * (float)length)),
+            Quaternion.identity);
+        player.name = "PlayerBody";
+
+        // Reset timer
+        timeSpent = 0;
+
+        // Relock cursor, start timer
+        // release cursor
+        if (Cursor.lockState == CursorLockMode.None)
+            Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+        Time.timeScale = 1;
+
+        // Disable lose popup
+        lose_popup.SetActive(false);
+
+        // Turn on crosshair
+        cursor.SetActive(true);
+
         /*
         overheadCam.GetComponent<AudioListener>().enabled = false;
         fps_player_obj = Instantiate(fps_prefab);
@@ -749,12 +786,13 @@ public class Level : MonoBehaviour
     // along with the functionality for the starting the level, or repeating it
     void Update()
     {
+        timeSpent += Time.deltaTime;
+        //*********************************************************
         /*
         if (player_health < 0.001f) // the player dies here
         {
             // PLAYER DEATH HANDLING
             text_box.GetComponent<Text>().text = "Failed!";
-
             if (fps_player_obj != null)
             {
                 GameObject grave = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -764,42 +802,76 @@ public class Level : MonoBehaviour
                 grave.GetComponent<Renderer>().material.color = Color.black;
                 Object.Destroy(fps_player_obj);
                 playerGrave = grave;
-
                 // show lose button and unlock cursor
                 tryLevelAgain.gameObject.SetActive(true);
                 Cursor.lockState = CursorLockMode.None;
                 Cursor.visible = true;
-
                 // play hurt sound effect
                 overheadCam.GetComponent<AudioListener>().enabled = true;
                 camSource.PlayOneShot(hurt, 0.3f);
             }
-
             return;
         } */
-        // GOAL HANDLING
-        /*
-        if (player_entered_house) // the player suceeds here, variable manipulated by House.cs
+
+        // KILL PLAYER IF TOO LOW
+        if (player != null)
         {
-            if (virus_landed_on_player_recently)
-                text_box.GetComponent<Text>().text = "Washed it off at home! Success!!!";
-            else
-                text_box.GetComponent<Text>().text = "Success!!!";
+            if (player.transform.position.y < bounds.min[1] + 1f)
+            {
+                Destroy(player);
+                // set cam and popup active
+                overhead_cam.gameObject.SetActive(true);
+                lose_popup.gameObject.SetActive(true);
+
+                // release cursor
+                if (Cursor.lockState != CursorLockMode.None)
+                    Cursor.lockState = CursorLockMode.None;
+                Cursor.visible = true;
+                Time.timeScale = 0;
+
+                // turn off aiming cursor if on
+                if (cursor.activeSelf)
+                    cursor.SetActive(false);
+            }
+        }
+
+
+        // GOAL HANDLING
+        if (player_entered_goal) // the player suceeds here, variable manipulated by House.cs
+        {
+            // Display time to finish
+            finalTime = timeSpent;
+            clock_text.text = "Your Time Was: " + finalTime.ToString("00:00");
+
+            // remove player
+            Object.Destroy(player);
+
+            // Enable overhead camera
+            overhead_cam.gameObject.SetActive(true);
+
+            // show winscreen
+            win_popup.gameObject.SetActive(true);
+
+            // release cursor
+            if (Cursor.lockState != CursorLockMode.None)
+                Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+            Time.timeScale = 0;
+
+            // turn off aiming cursor if on
+            if (cursor.activeSelf)
+                cursor.SetActive(false);
+
+            /*
             Object.Destroy(fps_player_obj);
             // show win button and unlock cursor
             playAgain.gameObject.SetActive(true);
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
-
             overheadCam.GetComponent<AudioListener>().enabled = true;
-            camSource.PlayOneShot(fanfare, 0.03f);
+            camSource.PlayOneShot(fanfare, 0.03f); */
 
             return;
-        } //*/
+        } //
     }
 }
-
-   
-
-
-    
