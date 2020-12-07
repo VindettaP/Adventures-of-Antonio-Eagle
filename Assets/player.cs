@@ -26,7 +26,7 @@ public class player : MonoBehaviour
 
     public string state;
 
-    private bool gravenable = false;
+    private bool gravenable = true;
     private float gravconst;
     private Animator animation_controller;
     private CharacterController character_controller;
@@ -86,6 +86,7 @@ public class player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        Debug.Log(jumpTime);
         // Check if player model is grounded
         grounded = IsGrounded();
 
@@ -115,8 +116,6 @@ public class player : MonoBehaviour
         spaceDown = Input.GetKeyDown(KeyCode.Space);
         eDown = Input.GetKeyDown(KeyCode.E);
         tabDown = Input.GetKeyDown(KeyCode.Tab);
-
-        Debug.Log(velocity);
 
         // set state based on input
         /* in animation controller, states controlled by int
@@ -160,15 +159,17 @@ public class player : MonoBehaviour
             cursor.SetActive(false);
         }
         
+
+        if (!grounded && doubleJumpUnlocked && spaceDown && !doubleJumped) // handle double jumping
+        {
+            doubleJumpTime = jumpLength; // just start the upward velocity again
+            doubleJumped = true;
+        }
+
         if (grappleScript.grappling)
         {
             state = "grappling";
             jumping = true;
-        }
-        else if (!grounded && doubleJumpUnlocked && spaceDown && !doubleJumped) // handle double jumping
-        {
-            doubleJumpTime = jumpLength; // just start the upward velocity again
-            doubleJumped = true;
         }
         else if (!grounded) // still in midair post jump
             state = "midAir";
@@ -270,7 +271,6 @@ public class player : MonoBehaviour
             dir = "none";
 
           //DASHING
-        Debug.Log(grounded);
         float xDir2 = 0;
         float zDir2 = 0;
         switch (dir)
@@ -513,7 +513,7 @@ public class player : MonoBehaviour
             else
                 velocity.y = jumpStrength; // just single jump
         }
-        else if (jumping && (doubleJumpTime > 0))
+        else if (doubleJumped && (doubleJumpTime > 0))
         {
             velocity.y = jumpStrength; // just double jump
         }
@@ -586,7 +586,7 @@ public class player : MonoBehaviour
 
         if (state != "jump" && !dontMove)
         {
-            if ((target + 10) > playerModel.transform.rotation.eulerAngles.y && (target - 10) < playerModel.transform.rotation.eulerAngles.y)
+            if ((target + 1) > playerModel.transform.rotation.eulerAngles.y && (target - 1) < playerModel.transform.rotation.eulerAngles.y)
             {
                 playerModel.transform.eulerAngles = new Vector3(0, target, 0);
             }
