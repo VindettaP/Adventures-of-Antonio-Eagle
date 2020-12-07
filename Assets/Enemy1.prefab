@@ -1784,7 +1784,7 @@ MonoBehaviour:
   player: {fileID: 0}
   ground:
     serializedVersion: 2
-    m_Bits: 4096
+    m_Bits: 1024
   whatisplayer:
     serializedVersion: 2
     m_Bits: 2048

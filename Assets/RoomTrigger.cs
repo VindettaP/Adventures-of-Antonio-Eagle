@@ -4,21 +4,21 @@ using UnityEngine;
 
 public class RoomTrigger : MonoBehaviour
 {
-    public BoxCollider trigger;
+    public SphereCollider trigger;
     public GameObject wall;
+    private Vector3 velocity = Vector3.zero;
     // Start is called before the first frame update
     void Start()
     {
-        trigger = gameObject.GetComponent<BoxCollider>();
-        
+        trigger = gameObject.GetComponent<SphereCollider>();
     }
 
     void OnTriggerEnter(Collider other){
         if(other.name == "PlayerBody"){
-            float step = 200 * Time.deltaTime;
-            Vector3 activated = new Vector3(wall.transform.position.x, wall.transform.position.y + 6.64f, wall.transform.position.z);
+            float step = 500 * Time.deltaTime;
+            Vector3 activated = new Vector3(wall.transform.position.x, wall.transform.position.y - 5.075215f, wall.transform.position.z);
             wall.transform.position = Vector3.MoveTowards(wall.transform.position, activated, step); 
-            Destroy(this);
+            Destroy(gameObject);
         }
     }
 }
