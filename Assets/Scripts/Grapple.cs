@@ -10,6 +10,8 @@ public class Grapple : MonoBehaviour
     public bool grappling = false;
     public Vector3 grapplePoint;
 
+    public bool grappleUnlocked = false;
+
     private LineRenderer lr;
     
 
@@ -27,13 +29,16 @@ public class Grapple : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetMouseButtonDown(0) && Time.timeScale > 0)
+        if (grappleUnlocked)
         {
-            StartGrapple();
-        }
-        else if (Input.GetMouseButtonUp(0) && Time.timeScale > 0)
-        {
-            StopGrapple();
+            if (Input.GetMouseButtonDown(0) && Time.timeScale > 0)
+            {
+                StartGrapple();
+            }
+            else if (Input.GetMouseButtonUp(0) && Time.timeScale > 0)
+            {
+                StopGrapple();
+            }
         }
     }
 

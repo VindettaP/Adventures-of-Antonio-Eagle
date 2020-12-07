@@ -23,6 +23,8 @@ public class player : MonoBehaviour
     public float drag = 0.1f;
     public float airDrag = 0.02f;
     public bool doubleJumpUnlocked = false;
+    public bool grappleUnlocked = false;
+    public bool dashUnlocked = false;
 
     public string state;
 
@@ -86,7 +88,9 @@ public class player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Debug.Log(jumpTime);
+        // Unlock grapple if we get it
+        grappleScript.grappleUnlocked = grappleUnlocked;
+
         // Check if player model is grounded
         grounded = IsGrounded();
 
@@ -317,14 +321,19 @@ public class player : MonoBehaviour
                 break;
         }
 
-        if(eDown && !grounded && (velocity.x != 0 || velocity.z != 0)){
-            dashing = true;
-        }
-        if(dashing == true && dashes == 0){
-            velocity.x = dashstr * xDir2;
-            velocity.z = dashstr * zDir2;
-            velocity.y = 0;
-            dashes = 1;
+        if (dashUnlocked)
+        {
+            if (eDown && !grounded && (velocity.x != 0 || velocity.z != 0))
+            {
+                dashing = true;
+            }
+            if (dashing == true && dashes == 0)
+            {
+                velocity.x = dashstr * xDir2;
+                velocity.z = dashstr * zDir2;
+                velocity.y = 0;
+                dashes = 1;
+            }
         }
 
         if(!grounded){
@@ -505,6 +514,8 @@ public class player : MonoBehaviour
             }
         }
 
+        Debug.Log("Velocity: " + velocity);
+
         // handle jumping
         if (jumping && (jumpTime > 0))
         {
@@ -531,8 +542,8 @@ public class player : MonoBehaviour
 
     void PositionUpdate(float xDir, float zDir)
     {
-        movement_direction = new Vector3(xDir, 0.0f, zDir);
-        movement_direction.Normalize();
+        //movement_direction = new Vector3(xDir, 0.0f, zDir);
+        //movement_direction.Normalize();
 
         // Move based on final velocity
         character_controller.Move(velocity * Time.deltaTime);
