@@ -93,7 +93,7 @@ public class player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Debug.Log("DJ Time: " + doubleJumpTime + " DJ Status: " + doubleJumped);
+        Debug.Log("Dash Time: " + dashTimeLeft + " Dash Status: " + dashing);
 
         // Unlock grapple if we get it
         grappleScript.grappleUnlocked = grappleUnlocked;
@@ -284,7 +284,7 @@ public class player : MonoBehaviour
         //DASHING
         if (dashUnlocked)
         {
-            if (eDown && !grounded)
+            if (eDown && !grounded && dashTimeLeft > 0)
             {
                 dashing = true;
                 dashTimeLeft = dashLength;
@@ -353,7 +353,7 @@ public class player : MonoBehaviour
             gravity = gravconst;
         }
         if(grounded){
-            dashes = 0;
+            dashTimeLeft = dashLength;
             dashing = false;
         }
 
