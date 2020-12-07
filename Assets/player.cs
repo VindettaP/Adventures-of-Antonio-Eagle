@@ -22,6 +22,7 @@ public class player : MonoBehaviour
     public float timeBetweenJumps = 1f;
     public float drag = 0.1f;
     public float airDrag = 0.02f;
+    public bool doubleJumpUnlocked = false;
 
     public string state;
 
@@ -44,11 +45,13 @@ public class player : MonoBehaviour
     private bool grounded;
     private Grapple grappleScript;
     private float jumpTime = 0;
+    private float doubleJumpTime = 0;
     private bool jumping;
     private float jumpCooldown = 0;
     private GameObject cursor;
 
     private bool tabDown;
+    private bool doubleJumped = false;
     private bool camerap;
     public GameObject fPerson, tPerson;
     public float dashstr;
@@ -70,12 +73,14 @@ public class player : MonoBehaviour
         //turning = false;
         jumping = false;
         jumpTime = jumpLength;
+        doubleJumpTime = jumpLength;
         jumpCooldown = timeBetweenJumps;
         grappleScript = GameObject.Find("Grapple").GetComponent<Grapple>();
         camerap = false;
         gravconst = gravity;
         dashes = 0;
         dashing = false;
+        timeBetweenJumps = 0.1f;
     }
 
     // Update is called once per frame
@@ -90,9 +95,13 @@ public class player : MonoBehaviour
             gravity = gravconst;
         else
             gravity = 0;
-        
+
         if (jumping)
+        {
+            if (doubleJumped)
+                doubleJumpTime -= Time.deltaTime;
             jumpTime -= Time.deltaTime; // decrease time in jump while we are jumping
+        }
         else
             jumpCooldown -= Time.deltaTime;
 
@@ -103,7 +112,7 @@ public class player : MonoBehaviour
         rightKey = Input.GetKey("d") || Input.GetKey(KeyCode.RightArrow);
         ctrlDown = Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
         shiftDown = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
-        spaceDown = Input.GetKey(KeyCode.Space);
+        spaceDown = Input.GetKeyDown(KeyCode.Space);
         eDown = Input.GetKeyDown(KeyCode.E);
         tabDown = Input.GetKeyDown(KeyCode.Tab);
 
@@ -124,6 +133,7 @@ public class player : MonoBehaviour
             fPerson.SetActive(true);
             tPerson.SetActive(false);
             camerap = false;
+            timeBetweenJumps = 0.1f;
 
             // Enable aiming cursor in first person
             cursor.SetActive(true);
@@ -141,6 +151,7 @@ public class player : MonoBehaviour
             fPerson.SetActive(false);
             grappleScript.StopGrapple();
             camerap = true;
+            timeBetweenJumps = 0.5f;
 
             // enable model render in third person
             modelRender.GetComponent<SkinnedMeshRenderer>().enabled = true;
@@ -154,12 +165,18 @@ public class player : MonoBehaviour
             state = "grappling";
             jumping = true;
         }
+        else if (!grounded && doubleJumpUnlocked && spaceDown && !doubleJumped) // handle double jumping
+        {
+            doubleJumpTime = jumpLength; // just start the upward velocity again
+            doubleJumped = true;
+        }
         else if (!grounded) // still in midair post jump
             state = "midAir";
         else if ((jumpTime < 0 && grounded && jumping) || (velocity.y < -0.6f && grounded)) // landed from a jump
         {
             state = "landing";
             jumping = false;
+            doubleJumped = false;
             jumpCooldown = timeBetweenJumps;
             jumpTime = jumpLength; // reset jump timer
             velocity.y = -0.5f; // reset velocity
@@ -305,7 +322,7 @@ public class player : MonoBehaviour
         }
         if(dashing == true && dashes == 0){
             velocity.x = dashstr * xDir2;
-            velocity.z = dashstr * xDir2;
+            velocity.z = dashstr * zDir2;
             velocity.y = 0;
             dashes = 1;
         }
@@ -490,7 +507,16 @@ public class player : MonoBehaviour
 
         // handle jumping
         if (jumping && (jumpTime > 0))
-            velocity.y = jumpStrength;
+        {
+            if (doubleJumped && (doubleJumpTime > 0))
+                velocity.y = 2 * jumpStrength; // double jumped while jumping, go up faster
+            else
+                velocity.y = jumpStrength; // just single jump
+        }
+        else if (jumping && (doubleJumpTime > 0))
+        {
+            velocity.y = jumpStrength; // just double jump
+        }
 
         // add gravity
         if (!grounded)
