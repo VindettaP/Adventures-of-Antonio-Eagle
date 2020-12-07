@@ -5845,5 +5845,13 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 980599457972375123, guid: 00884effe02663a45a7b673a541e4141, type: 3}
+      propertyPath: grappleSpeed
+      value: 0.02
+      objectReference: {fileID: 0}
+    - target: {fileID: 980599457972375123, guid: 00884effe02663a45a7b673a541e4141, type: 3}
+      propertyPath: airDrag
+      value: 0.08
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 00884effe02663a45a7b673a541e4141, type: 3}

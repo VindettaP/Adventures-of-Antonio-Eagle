@@ -180,6 +180,11 @@ public class player : MonoBehaviour
         {
             state = "grappling";
             jumping = true;
+            if (dashing)
+            {
+                dashTimeLeft = -1.0f;
+                dashing = false;
+            }
         }
         else if (!grounded) // still in midair post jump
             state = "midAir";
@@ -282,7 +287,7 @@ public class player : MonoBehaviour
 
 
         //DASHING
-        if (dashUnlocked)
+        if (dashUnlocked && state != "grappling")
         {
             if (eDown && !grounded && dashTimeLeft > 0)
             {
