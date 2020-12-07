@@ -56,14 +56,9 @@ public class Level : MonoBehaviour
     public int grapple_point_spacing = 3;
     public int num_grapples = 4;
     public GameObject player_prefab;
-    public GameObject win_popup;
-    public GameObject lose_popup;
-    public Text clock_text;
-    public Camera overhead_cam;
 
     // fields/variables accessible from other scripts
     internal GameObject player;
-    internal bool player_entered_goal = false;
 
     // fields/variables needed only from this script
     private Bounds bounds;                   // size of ground plane in world space coordinates 
@@ -73,10 +68,7 @@ public class Level : MonoBehaviour
     private float playerZ = -1;
     private int hW = -1;
     private int hL = -1;
-    private float timeSpent = 0.0f;
-    private float finalTime = 0.0f;
     private List<TileType>[,] sol;
-    private GameObject cursor;
 
     
 
@@ -121,18 +113,11 @@ public class Level : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        // Grab aiming cursor
-        cursor = GameObject.Find("AimingCursor");
-
-        // Disable overhead cam
-        overhead_cam.gameObject.SetActive(false);
-
         // initialize internal/private variables
-        bounds = GetComponent<Collider>().bounds;
+        bounds = GetComponent<Collider>().bounds; 
 
         // disable UI elements
-        win_popup.gameObject.SetActive(false);
-        lose_popup.gameObject.SetActive(false);
+
 
         // initialize 2D grid
         List<TileType>[,] grid = new List<TileType>[width, length];
@@ -305,6 +290,10 @@ public class Level : MonoBehaviour
         return false;
     }
 
+    // *** YOU NEED TO COMPLETE THIS FUNCTION  ***
+    // must return true if there are three (or more) interior consecutive wall blocks either horizontally or vertically
+    // by interior, we mean walls that do not belong to the perimeter of the grid
+    // e.g., a grid configuration: "FLOOR - WALL - WALL - WALL - FLOOR" is not valid
     bool TooLongWall(List<TileType>[,] grid)
     {
         bool oneAbove = false;
@@ -351,6 +340,7 @@ public class Level : MonoBehaviour
         return false;
     }
 
+
     // check if attempted assignment is consistent with the constraints or not
     bool CheckConsistency(List<TileType>[,] grid, int[] cell_pos, TileType t)
     {
@@ -368,6 +358,7 @@ public class Level : MonoBehaviour
         grid[w, l].AddRange(old_assignment);
         return areWeConsistent;
     }
+
 
     // euclidian distance from point to other point rounded down
     float heur(int sw, int sl, int gw, int gl)
@@ -441,18 +432,26 @@ public class Level : MonoBehaviour
         float zp = bounds.min[2] + (float)lr * (bounds.size[2] / (float)length);
 
         //**********INSTANTIATE PLAYER HERE*********************
+        /*
+        fps_player_obj = Instantiate(fps_prefab);
+        fps_player_obj.name = "PLAYER";
+        // character is placed above the level so that in the beginning, he appears to fall down onto the maze
+        fps_player_obj.transform.position = new Vector3(x + 0.5f, 2.0f * story_height, z + 0.5f);
+        AudioSource audioSource = fps_player_obj.AddComponent<AudioSource>();
+        source = fps_player_obj.GetComponent<AudioSource>(); */
         playerX = xp;
         playerZ = zp; 
-        player = Instantiate(player_prefab,
-            new Vector3(xp + bounds.size[0] / (2 * (float)width), bounds.min[1] + air_platform_height + 5.0f, zp + bounds.size[2] / (2 * (float)length)),
-            Quaternion.identity);
+        float yp = bounds.min[1];
+        player = Instantiate(player_prefab);
         player.name = "PlayerBody";
+        player.transform.position = new Vector3(xp + bounds.size[0] / (2 * (float)width), bounds.min[1] + air_platform_height + 5.0f, zp + bounds.size[2] / (2 * (float)length));
         //*********************************************************
         
 
         // place an exit from the maze at location (wee, lee) in terms of grid coordinates (integers)
         // destroy the wall segment there - the grid will be used to place a house
         // the exist will be placed as far as away from the character (yet, with some randomness, so that it's not always located at the corners)
+        int max_dist = -1;
         int wee = -1;
         int lee = -1;
 
@@ -642,22 +641,6 @@ public class Level : MonoBehaviour
 
                 if ((w == wee) && (l == lee)) // this is the exit
                 {
-                    GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                    cube.name = "WALL";
-                    cube.transform.localScale = new Vector3(bounds.size[0] / (float)width, air_platform_height, bounds.size[2] / (float)length);
-                    cube.transform.position = new Vector3(x + bounds.size[0] / (2 * (float)width), y + air_platform_height / 2.0f, z + bounds.size[2] / (2 * (float)length));
-                    cube.GetComponent<Renderer>().material.color = new Color(0.6f, 0.8f, 0.8f);
-
-                    GameObject goal = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                    goal.name = "Goal";
-                    goal.transform.localScale = new Vector3(bounds.size[0] / (float)width, 0.1f, bounds.size[2] / (float)length);
-                    goal.transform.position = new Vector3(x + bounds.size[0] / (2 * (float)width), y + 0.1f + air_platform_height, z + bounds.size[2] / (2 * (float)length));
-                    goal.GetComponent<Renderer>().material.color = new Color(0.6f, 2f, 0.8f);
-                    goal.AddComponent<BoxCollider>();
-                    goal.GetComponent<BoxCollider>().isTrigger = true;
-                    goal.GetComponent<BoxCollider>().size = new Vector3(1.0f, story_height * 10.0f, 1.0f);
-                    Destroy(goal.GetComponent<SphereCollider>());
-                    goal.AddComponent<Goal>();
                     //********************INSTANTIATE A GOAL HERE*******************************
                     /*
                     GameObject house = Instantiate(house_prefab, new Vector3(0, 0, 0), Quaternion.identity);
@@ -738,37 +721,13 @@ public class Level : MonoBehaviour
     // Reloads the scene to give the player a new map to play on
     public void PlayAgain()
     {
-        SceneManager.LoadScene("PCGLevel");
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        //overheadCam.GetComponent<AudioListener>().enabled = false;
     }
 
     // Reloads the level and lets the player try again
     public void TryLevelAgain()
     {
-        // Disable camera
-        overhead_cam.gameObject.SetActive(false);
-
-        // Spawn player at beginning
-        player = Instantiate(player_prefab,
-            new Vector3(playerX + bounds.size[0] / (2 * (float)width), bounds.min[1] + air_platform_height + 5.0f, playerZ + bounds.size[2] / (2 * (float)length)),
-            Quaternion.identity);
-        player.name = "PlayerBody";
-
-        // Reset timer
-        timeSpent = 0;
-
-        // Relock cursor, start timer
-        // release cursor
-        if (Cursor.lockState == CursorLockMode.None)
-            Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
-        Time.timeScale = 1;
-
-        // Disable lose popup
-        lose_popup.SetActive(false);
-
-        // Turn on crosshair
-        cursor.SetActive(true);
-
         /*
         overheadCam.GetComponent<AudioListener>().enabled = false;
         fps_player_obj = Instantiate(fps_prefab);
@@ -790,8 +749,6 @@ public class Level : MonoBehaviour
     // along with the functionality for the starting the level, or repeating it
     void Update()
     {
-        timeSpent += Time.deltaTime;
-        //*********************************************************
         /*
         if (player_health < 0.001f) // the player dies here
         {
@@ -820,57 +777,14 @@ public class Level : MonoBehaviour
 
             return;
         } */
-
-        // KILL PLAYER IF TOO LOW
-        if (player != null)
-        {
-            if (player.transform.position.y < bounds.min[1] + 1f)
-            {
-                Destroy(player);
-                // set cam and popup active
-                overhead_cam.gameObject.SetActive(true);
-                lose_popup.gameObject.SetActive(true);
-
-                // release cursor
-                if (Cursor.lockState != CursorLockMode.None)
-                    Cursor.lockState = CursorLockMode.None;
-                Cursor.visible = true;
-                Time.timeScale = 0;
-
-                // turn off aiming cursor if on
-                if (cursor.activeSelf) 
-                    cursor.SetActive(false);
-            }
-        }
-
-
         // GOAL HANDLING
-        if (player_entered_goal) // the player suceeds here, variable manipulated by House.cs
+        /*
+        if (player_entered_house) // the player suceeds here, variable manipulated by House.cs
         {
-            // Display time to finish
-            finalTime = timeSpent;
-            clock_text.text = "Your Time Was: " + finalTime.ToString("00:00");
-            
-            // remove player
-            Object.Destroy(player);
-
-            // Enable overhead camera
-            overhead_cam.gameObject.SetActive(true);
-
-            // show winscreen
-            win_popup.gameObject.SetActive(true);
-
-            // release cursor
-            if (Cursor.lockState != CursorLockMode.None)
-                Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
-            Time.timeScale = 0;
-
-            // turn off aiming cursor if on
-            if (cursor.activeSelf)
-                cursor.SetActive(false);
-
-            /*
+            if (virus_landed_on_player_recently)
+                text_box.GetComponent<Text>().text = "Washed it off at home! Success!!!";
+            else
+                text_box.GetComponent<Text>().text = "Success!!!";
             Object.Destroy(fps_player_obj);
             // show win button and unlock cursor
             playAgain.gameObject.SetActive(true);
@@ -878,10 +792,10 @@ public class Level : MonoBehaviour
             Cursor.visible = true;
 
             overheadCam.GetComponent<AudioListener>().enabled = true;
-            camSource.PlayOneShot(fanfare, 0.03f); */
+            camSource.PlayOneShot(fanfare, 0.03f);
 
             return;
-        } //
+        } //*/
     }
 }
 
