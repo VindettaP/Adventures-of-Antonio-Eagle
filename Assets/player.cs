@@ -489,29 +489,31 @@ public class player : MonoBehaviour
         else
             d = airDrag;
 
+        d = d / 2;
+
         if (Mathf.Abs(velocity.x) > 0)
         {
-            if (Mathf.Abs(velocity.x) < d)  // set to 0 if we get close enough
-                velocity.x = 0;
-            else
-            {
+            //if (Mathf.Abs(velocity.x) < d)  // set to 0 if we get close enough
+            //    velocity.x = 0;
+            //else
+           // {
                 if (grounded)
                     velocity.x -= drag * velocityDir.x;
                 else
                     velocity.x -= airDrag * velocityDir.x;
-            }
+            //}
         }
         if (Mathf.Abs(velocity.z) > 0)  
         {
-            if (Mathf.Abs(velocity.z) < d)
-                velocity.z = 0;
-            else
-            {
+            //if (Mathf.Abs(velocity.z) < d
+            //    velocity.z = 0;
+            //else
+           // {
                 if (grounded)
                     velocity.z -= drag * velocityDir.z;
                 else
                     velocity.z -= airDrag * velocityDir.z;
-            }
+            //}
         }
 
         Debug.Log("Velocity: " + velocity);
