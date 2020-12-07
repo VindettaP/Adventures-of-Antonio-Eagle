@@ -177,25 +177,7 @@ public class player : MonoBehaviour
         else
             state = "idle";
 
-        //DASHING
-        Debug.Log(grounded);
-        if(eDown && !grounded && (velocity.x != 0 || velocity.z != 0)){
-            dashing = true;
-        }
-        if(dashing == true && dashes == 0){
-            velocity.x = dashstr;
-            velocity.z = dashstr;
-            velocity.y = 0;
-            dashes = 1;
-        }
-
-        if(!grounded){
-            gravity = gravconst;
-        }
-        if(grounded){
-            dashes = 0;
-            dashing = false;
-        }
+      
         // FSM for character behavior, also update velocity and handle turning
         switch (state)
         {
@@ -270,6 +252,71 @@ public class player : MonoBehaviour
         else
             dir = "none";
 
+          //DASHING
+        Debug.Log(grounded);
+        float xDir2 = 0;
+        float zDir2 = 0;
+        switch (dir)
+        {
+            case "north":
+                xDir2 = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y));
+                zDir2 = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y));
+                break;
+            case "south":
+                xDir2 = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 180));
+                zDir2 = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 180));
+                break;
+            case "east":
+                xDir2 = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 270));
+                zDir2 = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 270));
+                break;
+            case "west":
+                xDir2 = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 90));
+                zDir2 = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 90));
+                break;
+            case "northEast":
+                xDir2 = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 315));
+                zDir2 = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 315));
+                break;
+            case "northWest":
+                xDir2 = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 45));
+                zDir2 = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 45));
+                break;
+            case "southEast":
+                xDir2 = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 225));
+                zDir2 = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 225));
+                break;
+            case "southWest":
+                xDir2 = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 135));
+                zDir2 = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 135));
+                break;
+            case "none":
+                xDir2 = 0;
+                zDir2 = 0;
+                break;
+            default:
+                xDir2 = 0;
+                zDir2 = 0;
+                break;
+        }
+
+        if(eDown && !grounded && (velocity.x != 0 || velocity.z != 0)){
+            dashing = true;
+        }
+        if(dashing == true && dashes == 0){
+            velocity.x = dashstr * xDir2;
+            velocity.z = dashstr * xDir2;
+            velocity.y = 0;
+            dashes = 1;
+        }
+
+        if(!grounded){
+            gravity = gravconst;
+        }
+        if(grounded){
+            dashes = 0;
+            dashing = false;
+        }
 
         // update movement direction based on keys
         float xdirection = 0.0f;

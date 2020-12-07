@@ -4387,6 +4387,7 @@ MonoBehaviour:
   state: 
   fPerson: {fileID: 0}
   tPerson: {fileID: 0}
+  dashstr: 0
   dashes: 0
 --- !u!1 &1445921162
 GameObject:
@@ -5118,6 +5119,7 @@ MonoBehaviour:
   state: 
   fPerson: {fileID: 569659956}
   tPerson: {fileID: 768788631}
+  dashstr: 25
   dashes: 0
 --- !u!143 &1754091971
 CharacterController:
