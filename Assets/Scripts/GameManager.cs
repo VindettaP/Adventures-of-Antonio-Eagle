@@ -14,6 +14,7 @@ public class GameManager : MonoBehaviour
 
     private GameObject cursor;
     private bool cursorWasOn;
+    private bool hitEsc;
 
     // Start is called before the first frame update
     void Start()
@@ -25,6 +26,7 @@ public class GameManager : MonoBehaviour
 
         cursor = GameObject.Find("AimingCursor");
         cursorWasOn = false;
+        hitEsc = false;
     }
 
     // Update is called once per frame
@@ -35,7 +37,10 @@ public class GameManager : MonoBehaviour
         if (escKey)
         {
             paused = !paused;
+            hitEsc = true;
         }
+        else
+            hitEsc = false;
 
         if (paused)
         {
@@ -43,7 +48,8 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            ClosePause();
+            if (hitEsc)
+                ClosePause();
         }
     }
 
@@ -64,7 +70,7 @@ public class GameManager : MonoBehaviour
     }
 
     public void ClosePause()
-    {
+    { 
         pauseMenu.gameObject.SetActive(false);
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;

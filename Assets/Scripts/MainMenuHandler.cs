@@ -9,6 +9,7 @@ public class MainMenuHandler : MonoBehaviour
     // buttons
     public Button newGame;
     public Button loadGame;
+    public Button timeTrial;
     public Button options;
     public Button instructions;
     public Button credits;
@@ -36,6 +37,7 @@ public class MainMenuHandler : MonoBehaviour
     {
         newGame.interactable = false;
         loadGame.interactable = false;
+        timeTrial.interactable = false;
         options.interactable = false;
         instructions.interactable = false;
         credits.interactable = false;
@@ -46,6 +48,7 @@ public class MainMenuHandler : MonoBehaviour
     {
         newGame.interactable = true;
         loadGame.interactable = true;
+        timeTrial.interactable = true;
         options.interactable = true;
         instructions.interactable = true;
         credits.interactable = true;
@@ -74,6 +77,10 @@ public class MainMenuHandler : MonoBehaviour
         Debug.Log("Exiting Game in .exe");
     }
 
+    public void TimeTrial()
+    {
+        SceneManager.LoadScene("PCGLevel");
+    }
 
     // Functions for handling UI popups
     public void CreditsButton()
