@@ -525,6 +525,7 @@ MonoBehaviour:
   grappleDistance: 100
   grappling: 0
   grapplePoint: {x: 0, y: 0, z: 0}
+  grappleUnlocked: 0
 --- !u!1 &980599457831898068
 GameObject:
   m_ObjectHideFlags: 0
@@ -571,7 +572,7 @@ GameObject:
   - component: {fileID: 980599457972375087}
   m_Layer: 11
   m_Name: PlayerBody
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -663,15 +664,20 @@ MonoBehaviour:
   gravity: 9.8
   grappleSpeed: 0.01
   grappleLength: 5
+  dashLength: 0.5
+  dashstr: 0
+  slowAfterDash: 0.2
   jumpLength: 0.3
   jumpStrength: 5
   timeBetweenJumps: 1
   drag: 0.5
   airDrag: 0.02
+  doubleJumpUnlocked: 0
+  grappleUnlocked: 0
+  dashUnlocked: 0
   state: 
   fPerson: {fileID: 980599457011420581}
   tPerson: {fileID: 980599456812357382}
-  dashstr: 0
   dashes: 0
 --- !u!143 &980599457972375122
 CharacterController:
@@ -757,15 +763,20 @@ MonoBehaviour:
   gravity: 9.8
   grappleSpeed: 2
   grappleLength: 3
+  dashLength: 0.5
+  dashstr: 0
+  slowAfterDash: 0.2
   jumpLength: 1
   jumpStrength: 50
   timeBetweenJumps: 1
   drag: 0.1
   airDrag: 0.02
+  doubleJumpUnlocked: 0
+  grappleUnlocked: 0
+  dashUnlocked: 0
   state: 
   fPerson: {fileID: 0}
   tPerson: {fileID: 0}
-  dashstr: 0
   dashes: 0
 --- !u!1001 &980599457319450951
 PrefabInstance:

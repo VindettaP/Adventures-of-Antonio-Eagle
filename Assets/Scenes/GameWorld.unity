@@ -3574,6 +3574,7 @@ MonoBehaviour:
   grappleDistance: 100
   grappling: 0
   grapplePoint: {x: 0, y: 0, z: 0}
+  grappleUnlocked: 0
 --- !u!120 &1144150664
 LineRenderer:
   m_ObjectHideFlags: 0
@@ -4379,11 +4380,17 @@ MonoBehaviour:
   gravity: 9.8
   grappleSpeed: 2
   grappleLength: 3
+  dashLength: 0.5
+  dashstr: 0
+  slowAfterDash: 0.2
   jumpLength: 1
   jumpStrength: 50
   timeBetweenJumps: 1
   drag: 0.1
   airDrag: 0.02
+  doubleJumpUnlocked: 0
+  grappleUnlocked: 0
+  dashUnlocked: 0
   state: 
   fPerson: {fileID: 0}
   tPerson: {fileID: 0}
@@ -5005,7 +5012,7 @@ GameObject:
   - component: {fileID: 1754091966}
   m_Layer: 11
   m_Name: PlayerBody
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -5110,11 +5117,17 @@ MonoBehaviour:
   gravity: 9.8
   grappleSpeed: 0.01
   grappleLength: 5
+  dashLength: 0.5
+  dashstr: 0
+  slowAfterDash: 0.2
   jumpLength: 0.3
   jumpStrength: 5
   timeBetweenJumps: 1
   drag: 0.25
   airDrag: 0.02
+  doubleJumpUnlocked: 0
+  grappleUnlocked: 0
+  dashUnlocked: 0
   state: 
   fPerson: {fileID: 569659956}
   tPerson: {fileID: 768788631}
@@ -5149,6 +5162,7 @@ GameObject:
   - component: {fileID: 1769098907}
   - component: {fileID: 1769098906}
   - component: {fileID: 1769098905}
+  - component: {fileID: 1769098909}
   m_Layer: 0
   m_Name: Cube (2)
   m_TagString: Untagged
@@ -5164,7 +5178,7 @@ BoxCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1769098904}
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
@@ -5232,6 +5246,20 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 12
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1769098909
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1769098904}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c50d874ab891f064b8c66480ed919b9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  checkpoint: {fileID: 1083451772}
+  playerPrefab: {fileID: 980599457972375084, guid: 00884effe02663a45a7b673a541e4141, type: 3}
 --- !u!1 &1777263547
 GameObject:
   m_ObjectHideFlags: 0

@@ -5,6 +5,8 @@ using UnityEngine;
 public class ouchiebox : MonoBehaviour
 {
     // Start is called before the first frame update
+    public GameObject checkpoint;
+    public GameObject playerPrefab;
     void Start()
     {
         
@@ -18,7 +20,8 @@ public class ouchiebox : MonoBehaviour
     void OnTriggerEnter(Collider other)
 {
 if (other.gameObject.tag == "Player") {
-Destroy (other.gameObject);
+    Destroy (other.gameObject);
+    Instantiate(playerPrefab, checkpoint.transform.position, checkpoint.transform.rotation);
 }
 }
 
