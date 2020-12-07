@@ -18,6 +18,8 @@ public class player : MonoBehaviour
     public float grappleSpeed = 2.0f;
     public float grappleLength = 3f;
     public float dashLength = 0.5f;
+    public float dashstr;
+    public float slowAfterDash = 0.2f;
     public float jumpLength = 1.0f;
     public float jumpStrength = 50f;
     public float timeBetweenJumps = 1f;
@@ -57,7 +59,6 @@ public class player : MonoBehaviour
     private bool doubleJumped = false;
     private bool camerap;
     public GameObject fPerson, tPerson;
-    public float dashstr;
     public int dashes;
     private bool dashing;
     private float dashTimeLeft;
@@ -342,8 +343,8 @@ public class player : MonoBehaviour
             if (dashTimeLeft <= 0 && dashing == true)
             {
                 dashing = false;
-                velocity.x *= 0.2f; 
-                velocity.z *= 0.2f;
+                velocity.x *= slowAfterDash; 
+                velocity.z *= slowAfterDash;
             }
         }
 
