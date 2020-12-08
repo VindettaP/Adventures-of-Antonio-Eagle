@@ -441,7 +441,7 @@ public class Level : MonoBehaviour
         playerW = wr;
         playerL = lr;
         player = Instantiate(player_prefab,
-            new Vector3(xp + bounds.size[0] / (2 * (float)width), bounds.min[1] + air_platform_height + 5.0f, zp + bounds.size[2] / (2 * (float)length)),
+            new Vector3(playerX + bounds.size[0] / (2 * (float)width), bounds.min[1] + 3.0f + (3.0f * air_platform_height), playerZ + bounds.size[2] / (2 * (float)length)),
             Quaternion.identity);
         player.name = "PlayerBody";
 
@@ -640,7 +640,7 @@ public class Level : MonoBehaviour
                     if (w == playerW && l == playerL)
                     {
                         cube.name = "SPAWN_PLATFORM";
-                        platY = y + air_platform_height - platform_size_y / 2.0f;
+                        platY = y + (3.0f * air_platform_height) - platform_size_y / 2.0f;
                     }
                     else
                         platY = Random.Range(y + air_platform_height - platform_size_y / 2.0f, y + (3.0f * air_platform_height) - platform_size_y / 2.0f);
@@ -667,7 +667,7 @@ public class Level : MonoBehaviour
 
         // Spawn player at beginning
         player = Instantiate(player_prefab,
-            new Vector3(playerX + bounds.size[0] / (2 * (float)width), bounds.min[1] + air_platform_height + 5.0f, playerZ + bounds.size[2] / (2 * (float)length)),
+            new Vector3(playerX + bounds.size[0] / (2 * (float)width), bounds.min[1] + 3.0f + (3.0f * air_platform_height), playerZ + bounds.size[2] / (2 * (float)length)),
             Quaternion.identity);
         player.name = "PlayerBody";
 
