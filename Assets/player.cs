@@ -28,8 +28,14 @@ public class player : MonoBehaviour
     public bool doubleJumpUnlocked = false;
     public bool grappleUnlocked = false;
     public bool dashUnlocked = false;
+    public AudioClip walkStep;
+    public AudioClip runStep;
+    public AudioClip jump;
+    public AudioClip land;
+    public AudioClip dash;
 
-    public string state;
+    internal string state;
+    internal AudioSource a_source;
 
     private bool gravenable = true;
     private float gravconst;
@@ -64,6 +70,9 @@ public class player : MonoBehaviour
     private float dashTimeLeft;
     private float xDirDash = 0;
     private float zDirDash = 0;
+    private int timeSteps = 0;
+    private bool jumpSound = true;
+    private bool doubleJumpSound = true;
     // Start is called before the first frame update
     void Start()
     {
@@ -88,12 +97,16 @@ public class player : MonoBehaviour
         dashes = 0;
         dashing = false;
         timeBetweenJumps = 0.1f;
+        a_source = GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        Debug.Log("Dash Time: " + dashTimeLeft + " Dash Status: " + dashing);
+        // Increment timesteps
+        if (timeSteps < 0)
+            timeSteps = 0; // handle overflow
+        timeSteps++;
 
         // Unlock grapple if we get it
         grappleScript.grappleUnlocked = grappleUnlocked;
@@ -174,6 +187,11 @@ public class player : MonoBehaviour
         {
             doubleJumpTime = jumpLength; // just start the upward velocity again
             doubleJumped = true;
+            if (doubleJumpSound)
+            {
+                doubleJumpSound = false;
+                a_source.PlayOneShot(jump);
+            }
         }
 
         if (grappleScript.grappling)
@@ -205,7 +223,6 @@ public class player : MonoBehaviour
         else
             state = "idle";
 
-      
         // FSM for character behavior, also update velocity and handle turning
         switch (state)
         {
@@ -216,9 +233,16 @@ public class player : MonoBehaviour
             case "forwardWalk":
                 animation_controller.SetInteger("state", 1);
                 max_velocity = walking_velocity;
+                if (timeSteps % 58 == 0)
+                    a_source.PlayOneShot(walkStep);
                 break;
             case "jumpStart":
                 animation_controller.SetInteger("state", 4);
+                if (jumpSound)
+                {
+                    jumpSound = false;
+                    a_source.PlayOneShot(jump);
+                }
                 //max_velocity = walking_velocity;
                 break;
             case "midAir":
@@ -226,12 +250,17 @@ public class player : MonoBehaviour
                 //max_velocity = walking_velocity;
                 break;
             case "landing":
+                a_source.PlayOneShot(land);
                 animation_controller.SetInteger("state", 6);
                 max_velocity = walking_velocity;
+                jumpSound = true;
+                doubleJumpSound = true;
                 break;
             case "run":
                 animation_controller.SetInteger("state", 3);
                 max_velocity = 2.0f * walking_velocity;
+                if (timeSteps % 36 == 0)
+                    a_source.PlayOneShot(runStep);
                 break;
             case "grappling":
                 max_velocity = 2.0f * walking_velocity;
@@ -284,10 +313,11 @@ public class player : MonoBehaviour
         //DASHING
         if (dashUnlocked)
         {
-            if (eDown && !grounded && dashTimeLeft > 0)
+            if (eDown && !grounded && dashTimeLeft > 0 && !dashing)
             {
                 dashing = true;
                 dashTimeLeft = dashLength;
+                a_source.PlayOneShot(dash);
 
                 // Set direction for dash
                 switch (dir)

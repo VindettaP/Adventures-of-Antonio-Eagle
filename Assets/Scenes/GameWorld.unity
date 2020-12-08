@@ -1446,7 +1446,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &491573900
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1854,7 +1854,7 @@ AudioListener:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 569659956}
-  m_Enabled: 0
+  m_Enabled: 1
 --- !u!20 &569659960
 Camera:
   m_ObjectHideFlags: 0
@@ -3574,6 +3574,8 @@ MonoBehaviour:
   grappleDistance: 100
   grappling: 0
   grapplePoint: {x: 0, y: 0, z: 0}
+  a_source: {fileID: 1754091972}
+  grappleSound: {fileID: 8300000, guid: 4c2ace31943691442961f916c40de562, type: 3}
   grappleUnlocked: 0
 --- !u!120 &1144150664
 LineRenderer:
@@ -4391,7 +4393,11 @@ MonoBehaviour:
   doubleJumpUnlocked: 0
   grappleUnlocked: 0
   dashUnlocked: 0
-  state: 
+  walkStep: {fileID: 0}
+  runStep: {fileID: 0}
+  jump: {fileID: 0}
+  land: {fileID: 0}
+  dash: {fileID: 0}
   fPerson: {fileID: 0}
   tPerson: {fileID: 0}
   dashes: 0
@@ -5010,6 +5016,7 @@ GameObject:
   - component: {fileID: 1754091970}
   - component: {fileID: 1754091971}
   - component: {fileID: 1754091966}
+  - component: {fileID: 1754091972}
   m_Layer: 11
   m_Name: PlayerBody
   m_TagString: Player
@@ -5118,7 +5125,7 @@ MonoBehaviour:
   grappleSpeed: 0.01
   grappleLength: 5
   dashLength: 0.5
-  dashstr: 0
+  dashstr: 40
   slowAfterDash: 0.2
   jumpLength: 0.3
   jumpStrength: 5
@@ -5128,7 +5135,11 @@ MonoBehaviour:
   doubleJumpUnlocked: 0
   grappleUnlocked: 0
   dashUnlocked: 0
-  state: 
+  walkStep: {fileID: 8300000, guid: ebf0f362fa4996a44a3ca0d417364918, type: 3}
+  runStep: {fileID: 8300000, guid: b8375d39273e40f47b3be704c90a2653, type: 3}
+  jump: {fileID: 8300000, guid: b52e151711358504e86d487a182fefd6, type: 3}
+  land: {fileID: 8300000, guid: 1bd2e42077149994092e84acde348be6, type: 3}
+  dash: {fileID: 8300000, guid: 095c2d1f105b170419d6c32e7d7b1796, type: 3}
   fPerson: {fileID: 569659956}
   tPerson: {fileID: 768788631}
   dashes: 0
@@ -5150,6 +5161,102 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!82 &1754091972
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1754091965}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_PlayOnAwake: 1
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &1769098904
 GameObject:
   m_ObjectHideFlags: 0

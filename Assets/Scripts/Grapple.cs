@@ -9,7 +9,8 @@ public class Grapple : MonoBehaviour
     public float grappleDistance = 100f;
     public bool grappling = false;
     public Vector3 grapplePoint;
-
+    public AudioSource a_source;
+    public AudioClip grappleSound;
     public bool grappleUnlocked = false;
 
     private LineRenderer lr;
@@ -56,6 +57,7 @@ public class Grapple : MonoBehaviour
             grappling = true;
             float distanceFromPoint = Vector3.Distance(player.position, grapplePoint);
             lr.positionCount = 2;
+            a_source.PlayOneShot(grappleSound);
         }
     }
 
