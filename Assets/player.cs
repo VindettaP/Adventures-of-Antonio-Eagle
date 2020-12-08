@@ -70,7 +70,12 @@ public class player : MonoBehaviour
     private float dashTimeLeft;
     private float xDirDash = 0;
     private float zDirDash = 0;
-    private int timeSteps = 0;
+
+    // Sound variables
+    private float walkInterval = 0.433f;
+    private float runInterval = 0.267f;
+    private float walkTime = 0f;
+    private float runTime = 0f;
     private bool jumpSound = true;
     private bool doubleJumpSound = true;
     // Start is called before the first frame update
@@ -103,11 +108,6 @@ public class player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // Increment timesteps
-        if (timeSteps < 0)
-            timeSteps = 0; // handle overflow
-        timeSteps++;
-
         // Unlock grapple if we get it
         grappleScript.grappleUnlocked = grappleUnlocked;
 
@@ -214,7 +214,6 @@ public class player : MonoBehaviour
         {
             state = "jumpStart";
             jumping = true;
-            //jumpTime = jumpLength; // reset jump timer
         }
         else if (shiftDown && (leftKey || rightKey || upKey || downKey))
             state = "run";
@@ -233,8 +232,11 @@ public class player : MonoBehaviour
             case "forwardWalk":
                 animation_controller.SetInteger("state", 1);
                 max_velocity = walking_velocity;
-                if (timeSteps % 58 == 0)
+                if (Time.time - walkTime > walkInterval)
+                {
                     a_source.PlayOneShot(walkStep);
+                    walkTime = Time.time;
+                }
                 break;
             case "jumpStart":
                 animation_controller.SetInteger("state", 4);
@@ -243,11 +245,9 @@ public class player : MonoBehaviour
                     jumpSound = false;
                     a_source.PlayOneShot(jump);
                 }
-                //max_velocity = walking_velocity;
                 break;
             case "midAir":
                 animation_controller.SetInteger("state", 5);
-                //max_velocity = walking_velocity;
                 break;
             case "landing":
                 a_source.PlayOneShot(land);
@@ -259,8 +259,11 @@ public class player : MonoBehaviour
             case "run":
                 animation_controller.SetInteger("state", 3);
                 max_velocity = 2.0f * walking_velocity;
-                if (timeSteps % 36 == 0)
+                if (Time.time - runTime > runInterval)
+                {
                     a_source.PlayOneShot(runStep);
+                    runTime = Time.time;
+                }
                 break;
             case "grappling":
                 max_velocity = 2.0f * walking_velocity;
