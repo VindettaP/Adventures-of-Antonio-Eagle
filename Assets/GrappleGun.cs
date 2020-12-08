@@ -9,7 +9,7 @@ public class GrappleGun : MonoBehaviour
     public LayerMask grappleable;
     public Transform tip, cam, player;
 
-    private float maxDistance = 100f;
+    private float maxDistance = 10f;
     private SpringJoint joint;
 
     void Awake(){
