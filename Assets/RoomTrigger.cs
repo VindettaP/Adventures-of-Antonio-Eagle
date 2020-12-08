@@ -28,6 +28,7 @@ public class RoomTrigger : MonoBehaviour
     void OnTriggerEnter(Collider other){
         if(other.name == "PlayerBody"){
             triggered = true;
+            gameObject.GetComponent<SphereCollider>().enabled = false;
             gameObject.GetComponent<MeshRenderer>().enabled = false;
         }
     }
