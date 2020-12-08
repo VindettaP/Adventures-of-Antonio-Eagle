@@ -189,13 +189,13 @@ public class Level : MonoBehaviour
             {
                 wr = Random.Range(1, width - 1);
                 lr = Random.Range(1, length - 1);
-                if (grid[wr, lr] == null && !CheckRadius(grid, wr, lr, 2, 2, TileType.AIR_PLAT))
+                if (grid[wr, lr] == null)
                 {
                     grid[wr, lr] = new List<TileType> { TileType.AIR_PLAT };
                     p++;
                 }
             }
-            while (wall < (width * length) / 18)
+            while (wall < (width * length) / 25)
             {
                 wr = Random.Range(1, width - 1);
                 lr = Random.Range(1, length - 1);
@@ -264,8 +264,8 @@ public class Level : MonoBehaviour
             }
         }
 
-        if ((assigned[(int)TileType.WALL] > width * length / 15) ||
-            assigned[(int)TileType.AIR_PLAT] > width * length / 20)
+        if ((assigned[(int)TileType.WALL] > width * length / 14) ||
+            assigned[(int)TileType.AIR_PLAT] > width * length / 14)
             return true;
         else
             return false;
@@ -367,7 +367,7 @@ public class Level : MonoBehaviour
         grid[w, l] = new List<TileType> { t };
 
         // note that we negate the functions here i.e., check if we are consistent with the constraints we want
-        bool areWeConsistent = !TooLongWall(grid) && !TooManyWallsOrPlats(grid) && !WallsNearGrapples(grid); //&& !TooFewWallsOrPlats(grid);
+        bool areWeConsistent = !TooLongWall(grid) && !TooManyWallsOrPlats(grid);// && !WallsNearGrapples(grid); //&& !TooFewWallsOrPlats(grid);
 
         grid[w, l] = new List<TileType>();
         grid[w, l].AddRange(old_assignment);

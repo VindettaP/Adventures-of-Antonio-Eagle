@@ -796,7 +796,7 @@ MonoBehaviour:
   grapple_point_height: 20
   grapple_point_spacing_w: 2
   grapple_point_spacing_l: 2
-  num_grapples: 8
+  num_grapples: 12
   player_prefab: {fileID: 655701867, guid: 165571647e66a984e958e6f49a138e0c, type: 3}
   win_popup: {fileID: 2070848734}
   lose_popup: {fileID: 1066992457}
