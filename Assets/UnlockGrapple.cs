@@ -8,18 +8,30 @@ public class UnlockGrapple : MonoBehaviour
     public GameObject wall;
     private Vector3 velocity = Vector3.zero;
     // Start is called before the first frame update
+
+    Vector3 activated;
+    private bool triggered;
     void Start()
     {
         trigger = gameObject.GetComponent<SphereCollider>();
+        triggered = false;
+        activated = new Vector3(wall.transform.position.x, wall.transform.position.y - 8.55f, wall.transform.position.z);
+    }
+
+    void Update(){
+        if(triggered){
+            if(wall.transform.position == activated){
+                Destroy(gameObject);
+            }
+            wall.transform.position = Vector3.SmoothDamp(wall.transform.position, activated, ref velocity, 100f * Time.deltaTime);
+        }
     }
 
     void OnTriggerEnter(Collider other){
         if(other.name == "PlayerBody"){
-            float step = 500 * Time.deltaTime;
-            Vector3 activated = new Vector3(wall.transform.position.x, wall.transform.position.y - 5.075215f, wall.transform.position.z);
-            wall.transform.position = Vector3.MoveTowards(wall.transform.position, activated, step); 
+            triggered = true;
+            gameObject.GetComponent<MeshRenderer>().enabled = false;
             other.GetComponent<player>().grappleUnlocked = true;
-            Destroy(gameObject);
         }
     }
 }
