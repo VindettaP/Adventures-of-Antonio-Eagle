@@ -47,7 +47,6 @@ struct Node
 
 public class Level : MonoBehaviour
 {
-    // fields/variables you may adjust from Unity's interface
     public int width = 16;   // size of level (default 16 x 16 blocks)
     public int length = 16;
     public float story_height = 2.5f;   // height of walls
@@ -62,6 +61,9 @@ public class Level : MonoBehaviour
     public Camera overhead_cam;
     public GameObject ceiling;
     public GameObject water;
+    public Material border_wall_mat;
+    public Material air_plat_mat;
+    public Material goal_wall_mat;
 
     // fields/variables accessible from other scripts
     internal GameObject player;
@@ -81,11 +83,6 @@ public class Level : MonoBehaviour
     private GameObject cursor;
 
 
-
-    // feel free to put more fields here, if you need them e.g, add AudioClips that you can also reference them from other scripts
-    // for sound, make also sure that you have ONE audio listener active (either the listener in the FPS or the main camera, switch accordingly)
-
-    // a helper function that randomly shuffles the elements of a list (useful to randomize the solution to the CSP)
     private void Shuffle<T>(ref List<T> list)
     {
         int n = list.Count;
@@ -150,11 +147,6 @@ public class Level : MonoBehaviour
         // Place some random grapple points to start
         pos_grapples = new List<int[]>();
 
-
-        // create the wall perimeter of the level, and let the interior as unassigned
-        // then try to assign variables to satisfy all constraints
-        // *rarely* it might be impossible to satisfy all constraints due to initialization
-        // in this case of no success, we'll restart the random initialization and try to re-solve the CSP
         bool success = false;
         while (!success)
         {
@@ -212,9 +204,8 @@ public class Level : MonoBehaviour
                         grid[w, l] = new List<TileType> { TileType.WALL };
                     else
                     {
-                        if (grid[w, l] == null) // does not have virus already or some other assignment from previous run
+                        if (grid[w, l] == null) 
                         {
-                            // CSP will involve assigning variables to one of the following four values (VIRUS is predefined for some tiles)
                             List<TileType> candidate_assignments = new List<TileType> { TileType.WALL, TileType.FLOOR, TileType.AIR_PLAT };
                             Shuffle<TileType>(ref candidate_assignments);
 
@@ -223,7 +214,6 @@ public class Level : MonoBehaviour
                         }
                     }
 
-            // YOU MUST IMPLEMENT this function!!!
             success = BackTrackingSearch(grid, unassigned);
             if (!success)
             {
@@ -286,8 +276,6 @@ public class Level : MonoBehaviour
             }
         }
 
-        //if ((assigned[(int)TileType.WALL] < width * length / 12) ||
-        //    assigned[(int)TileType.AIR_PLAT] < num_grapples * 2)
         if (assigned[(int)TileType.AIR_PLAT] < width * length / 20 ||
             assigned[(int)TileType.WALL] < width * length / 20)
             return true;
@@ -385,13 +373,8 @@ public class Level : MonoBehaviour
         return Mathf.Sqrt((diffw * diffw) + (diffl * diffl));
     }
 
-    // *** YOU NEED TO COMPLETE THIS FUNCTION  ***
-    // implement backtracking 
     bool BackTrackingSearch(List<TileType>[,] grid, List<int[]> unassigned)
     {
-        // if there are too many recursive function evaluations, then backtracking has become too slow (or constraints cannot be satisfied)
-        // to provide a reasonable amount of time to start the level, we put a limit on the total number of recursive calls
-        // if the number of calls exceed the limit, then it's better to try a different initialization
         if (function_calls++ > 100000)
             return false;
 
@@ -403,7 +386,6 @@ public class Level : MonoBehaviour
         int[] nextVar = unassigned[index]; // choose random unassigned grid location to try next
         bool result = false;
 
-        //foreach (TileType t in new List<TileType> { TileType.WALL, TileType.FLOOR, TileType.AIR_PLAT }) // loop through possible assignments
         for (int i = 0; i < 3; i++)
         {
             if (CheckConsistency(grid, nextVar, (TileType)i))
@@ -433,10 +415,6 @@ public class Level : MonoBehaviour
     // you will need to edit this function (see below)
     void DrawDungeon(List<TileType>[,] solution, int playerW = -1, int playerL = -1, int houseW = -1, int houseL = -1)
     {
-        GetComponent<Renderer>().material.color = Color.grey; // ground plane will be grey
-
-        // place character at random position (wr, lr) in terms of grid coordinates (integers)
-        // make sure that this random position is a FLOOR tile (not wall, drug, or virus)
         int wr = 0;
         int lr = 0;
 
@@ -579,13 +557,6 @@ public class Level : MonoBehaviour
             }
         }
 
-
-        /*** implement what is described above ! */
-
-
-        // the rest of the code creates the scenery based on the grid state 
-        // you don't need to modify this code (unless you want to replace the virus
-        // or other prefabs with something else you like)
         int w = 0;
         for (float x = bounds.min[0]; x < bounds.max[0]; x += bounds.size[0] / (float)width, w++)
         {
@@ -604,7 +575,7 @@ public class Level : MonoBehaviour
                     cube.name = "GOAL_WALL";
                     cube.transform.localScale = new Vector3(bounds.size[0] / (float)width, air_platform_height, bounds.size[2] / (float)length);
                     cube.transform.position = new Vector3(x + bounds.size[0] / (2 * (float)width), y + air_platform_height / 2.0f, z + bounds.size[2] / (2 * (float)length));
-                    cube.GetComponent<Renderer>().material.color = new Color(0.2f, 0.2f, 0.2f);
+                    cube.GetComponent<Renderer>().material = goal_wall_mat;
 
                     // make exit circle
                     GameObject goal = GameObject.CreatePrimitive(PrimitiveType.Sphere);
@@ -625,27 +596,20 @@ public class Level : MonoBehaviour
                     if (w == 0 || l == 0 || l == length - 1 || w == width - 1)
                     {
                         cube.transform.localScale = new Vector3(bounds.size[0] / (float)width, grapple_point_height, bounds.size[2] / (float)length);
-                        cube.transform.position = new Vector3(x + bounds.size[0] / (2 * (float)width), y + 2.0f + grapple_point_height / 2.0f, z + bounds.size[2] / (2 * (float)length));
-                        cube.GetComponent<Renderer>().material.color = new Color(0.4f, 0.4f, 0.4f);
+                        cube.transform.position = new Vector3(x + bounds.size[0] / (2 * (float)width), y + grapple_point_height / 2.0f, z + bounds.size[2] / (2 * (float)length));
+                        //cube.GetComponent<Renderer>().material.color = new Color(0.4f, 0.4f, 0.4f);
+                        cube.GetComponent<Renderer>().material = border_wall_mat;
                         cube.name = "BORDER_WALL";
                     }
                     else
                     {
                         cube.transform.localScale = new Vector3(bounds.size[0] / (float)width, story_height, bounds.size[2] / (float)length);
                         cube.transform.position = new Vector3(x + bounds.size[0] / (2 * (float)width), y + story_height / 2.0f, z + bounds.size[2] / (2 * (float)length));
-                        cube.GetComponent<Renderer>().material.color = new Color(0.6f, 0.8f, 0.8f);
+                        //cube.GetComponent<Renderer>().material.color = new Color(0.6f, 0.8f, 0.8f);
+                        cube.GetComponent<Renderer>().material = border_wall_mat;
                         cube.name = "WALL";
                     }
                     
-                }
-                else if (solution[w, l][0] == TileType.VIRUS)
-                {
-                    /*
-                    GameObject virus = Instantiate(virus_prefab, new Vector3(0, 0, 0), Quaternion.identity);
-                    virus.name = "COVID";
-                    virus.transform.position = new Vector3(x + 0.5f, y + Random.Range(1.0f, story_height / 2.0f), z + 0.5f);
-                    virus.AddComponent<Virus>();
-                    virus.GetComponent<Rigidbody>().mass = 10000; */
                 }
                 else if (solution[w, l][0] == TileType.GRAPPLE_POINT)
                 {
@@ -654,7 +618,7 @@ public class Level : MonoBehaviour
                     cube.name = "GRAPPLE_POINT";
                     cube.transform.localScale = new Vector3(bounds.size[0] / (float)width, platform_size_y, bounds.size[2] / (float)length);
                     cube.transform.position = new Vector3(x + bounds.size[0] / (2 * (float)width), y + grapple_point_height - platform_size_y / 2.0f, z + bounds.size[2] / (2 * (float)length));
-                    cube.GetComponent<Renderer>().material.color = new Color(1f, 1f, 2f);
+                    cube.GetComponent<Renderer>().material.color = new Color(5f, 5f, 0f);
                     cube.layer = 8; // set it to be grappleable
 
                 }
@@ -665,20 +629,7 @@ public class Level : MonoBehaviour
                     cube.name = "AIR_PLATFORM";
                     cube.transform.localScale = new Vector3(bounds.size[0] / (float)width, platform_size_y, bounds.size[2] / (float)length);
                     cube.transform.position = new Vector3(x + bounds.size[0] / (2 * (float)width), y + air_platform_height - platform_size_y / 2.0f, z + bounds.size[2] / (2 * (float)length));
-                    cube.GetComponent<Renderer>().material.color = new Color(2f, 0f, 2f);
-                    /*
-                    GameObject water = Instantiate(water_prefab, new Vector3(0, 0, 0), Quaternion.identity);
-                    water.name = "WATER";
-                    water.transform.localScale = new Vector3(0.5f * bounds.size[0] / (float)width, 1.0f, 0.5f * bounds.size[2] / (float)length);
-                    water.transform.position = new Vector3(x + 0.5f, y + 0.1f, z + 0.5f);
-                    GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                    cube.name = "WATER_BOX";
-                    cube.transform.localScale = new Vector3(bounds.size[0] / (float)width, story_height / 20.0f, bounds.size[2] / (float)length);
-                    cube.transform.position = new Vector3(x + 0.5f, y, z + 0.5f);
-                    cube.GetComponent<Renderer>().material.color = Color.grey;
-                    cube.GetComponent<BoxCollider>().size = new Vector3(1.1f, 20.0f * story_height, 1.1f);
-                    cube.GetComponent<BoxCollider>().isTrigger = true;
-                    cube.AddComponent<Water>(); */
+                    cube.GetComponent<Renderer>().material = air_plat_mat;
                 }
             }
         }
@@ -723,53 +674,11 @@ public class Level : MonoBehaviour
         ceiling.GetComponent<Renderer>().enabled = true;
         water.GetComponent<Renderer>().enabled = true;
 
-        /*
-        overheadCam.GetComponent<AudioListener>().enabled = false;
-        fps_player_obj = Instantiate(fps_prefab);
-        fps_player_obj.name = "PLAYER";
-        // character is placed above the level so that in the beginning, he appears to fall down onto the maze
-        fps_player_obj.transform.position = new Vector3(playerX + 0.5f, 2.0f * story_height, playerZ + 0.5f);
-        player_health = 1.0f;
-        tryLevelAgain.gameObject.SetActive(false);
-        Object.Destroy(playerGrave);
-        AudioSource audioSource = fps_player_obj.AddComponent<AudioSource>();
-        source = fps_player_obj.GetComponent<AudioSource>();
-        DrawDungeon(sol, 5, 5, hW, hL);
-        text_box.GetComponent<Text>().text = "Find your home!"; */
     }
-    // *** YOU NEED TO COMPLETE THIS PART OF THE FUNCTION JUST TO ADD SOUNDS ***
-    // YOU MAY CHOOSE ANY SHORT SOUNDS (<2 sec) YOU WANT FOR A VIRUS HIT, A VIRUS INFECTION,
-    // GETTING INTO THE WATER, AND REACHING THE EXIT
-    // note: you may also change other scripts/functions to add sound functionality,
-    // along with the functionality for the starting the level, or repeating it
+
     void Update()
     {
         timeSpent += Time.deltaTime;
-        //*********************************************************
-        /*
-        if (player_health < 0.001f) // the player dies here
-        {
-            // PLAYER DEATH HANDLING
-            text_box.GetComponent<Text>().text = "Failed!";
-            if (fps_player_obj != null)
-            {
-                GameObject grave = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                grave.name = "GRAVE";
-                grave.transform.localScale = new Vector3(bounds.size[0] / (float)width, 2.0f * story_height, bounds.size[2] / (float)length);
-                grave.transform.position = fps_player_obj.transform.position;
-                grave.GetComponent<Renderer>().material.color = Color.black;
-                Object.Destroy(fps_player_obj);
-                playerGrave = grave;
-                // show lose button and unlock cursor
-                tryLevelAgain.gameObject.SetActive(true);
-                Cursor.lockState = CursorLockMode.None;
-                Cursor.visible = true;
-                // play hurt sound effect
-                overheadCam.GetComponent<AudioListener>().enabled = true;
-                camSource.PlayOneShot(hurt, 0.3f);
-            }
-            return;
-        } */
 
         // KILL PLAYER IF TOO LOW
         if (player != null)
@@ -825,15 +734,6 @@ public class Level : MonoBehaviour
 
             ceiling.GetComponent<Renderer>().enabled = false;
             water.GetComponent<Renderer>().enabled = false;
-
-            /*
-            Object.Destroy(fps_player_obj);
-            // show win button and unlock cursor
-            playAgain.gameObject.SetActive(true);
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
-            overheadCam.GetComponent<AudioListener>().enabled = true;
-            camSource.PlayOneShot(fanfare, 0.03f); */
 
             return;
         } //
