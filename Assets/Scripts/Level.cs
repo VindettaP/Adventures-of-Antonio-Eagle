@@ -60,10 +60,12 @@ public class Level : MonoBehaviour
     public Text clock_text;
     public Camera overhead_cam;
     public GameObject ceiling;
-    public GameObject water;
     public Material border_wall_mat;
     public Material air_plat_mat;
     public Material goal_wall_mat;
+    public AudioClip victory;
+    public AudioClip splash;
+    public AudioClip bgMusic;
 
     // fields/variables accessible from other scripts
     internal GameObject player;
@@ -81,6 +83,8 @@ public class Level : MonoBehaviour
     private float finalTime = 0.0f;
     private List<TileType>[,] sol;
     private GameObject cursor;
+    private bool playedJingle = false;
+    private bool playedSplash = false;
 
 
     private void Shuffle<T>(ref List<T> list)
@@ -120,6 +124,9 @@ public class Level : MonoBehaviour
     // Use this for initialization
     void Start()
     {
+        // reset jingle
+        playedJingle = false;
+
         // Make floor plane blue
         GetComponent<Renderer>().material.color = new Color(0.5f, 5.5f, 5.0f); // Make floor blue (for water)
 
@@ -433,6 +440,9 @@ public class Level : MonoBehaviour
             new Vector3(xp + bounds.size[0] / (2 * (float)width), bounds.min[1] + air_platform_height + 5.0f, zp + bounds.size[2] / (2 * (float)length)),
             Quaternion.identity);
         player.name = "PlayerBody";
+
+        // Play background music
+        player.GetComponent<AudioSource>().PlayOneShot(bgMusic, 0.5f);
         //*********************************************************
 
         // Choose goal location here
@@ -647,12 +657,15 @@ public class Level : MonoBehaviour
     {
         // Disable camera
         overhead_cam.gameObject.SetActive(false);
+        playedSplash = false;
 
         // Spawn player at beginning
         player = Instantiate(player_prefab,
             new Vector3(playerX + bounds.size[0] / (2 * (float)width), bounds.min[1] + air_platform_height + 5.0f, playerZ + bounds.size[2] / (2 * (float)length)),
             Quaternion.identity);
         player.name = "PlayerBody";
+
+        player.GetComponent<AudioSource>().PlayOneShot(bgMusic, 0.5f);
 
         // Reset timer
         timeSpent = 0;
@@ -672,7 +685,6 @@ public class Level : MonoBehaviour
 
         // Turn ceiling back on
         ceiling.GetComponent<Renderer>().enabled = true;
-        water.GetComponent<Renderer>().enabled = true;
 
     }
 
@@ -690,6 +702,13 @@ public class Level : MonoBehaviour
                 overhead_cam.gameObject.SetActive(true);
                 lose_popup.gameObject.SetActive(true);
 
+                // play sound if haven't played yet
+                if (!playedSplash)
+                {
+                    overhead_cam.GetComponent<AudioSource>().PlayOneShot(splash, 0.4f);
+                    playedSplash = true;
+                }
+
                 // release cursor
                 if (Cursor.lockState != CursorLockMode.None)
                     Cursor.lockState = CursorLockMode.None;
@@ -701,7 +720,6 @@ public class Level : MonoBehaviour
                     cursor.SetActive(false);
 
                 ceiling.GetComponent<Renderer>().enabled = false;
-                water.GetComponent<Renderer>().enabled = false;
             }
         }
 
@@ -718,6 +736,12 @@ public class Level : MonoBehaviour
 
             // Enable overhead camera
             overhead_cam.gameObject.SetActive(true);
+            // play jingle if haven't played yet
+            if (!playedJingle)
+            {
+                overhead_cam.GetComponent<AudioSource>().PlayOneShot(victory);
+                playedJingle = true;
+            }
 
             // show winscreen
             win_popup.gameObject.SetActive(true);
@@ -733,8 +757,6 @@ public class Level : MonoBehaviour
                 cursor.SetActive(false);
 
             ceiling.GetComponent<Renderer>().enabled = false;
-            water.GetComponent<Renderer>().enabled = false;
-
             return;
         } //
     }
