@@ -60,6 +60,8 @@ public class Level : MonoBehaviour
     public GameObject lose_popup;
     public Text clock_text;
     public Camera overhead_cam;
+    public GameObject ceiling;
+    public GameObject water;
 
     // fields/variables accessible from other scripts
     internal GameObject player;
@@ -121,6 +123,12 @@ public class Level : MonoBehaviour
     // Use this for initialization
     void Start()
     {
+        // Make floor plane blue
+        GetComponent<Renderer>().material.color = new Color(0.5f, 5.5f, 5.0f); // Make floor blue (for water)
+
+        // Make ceiling
+        ceiling.transform.position = new Vector3(ceiling.transform.position.x, grapple_point_height - 0.5f, ceiling.transform.position.z);
+
         // Grab aiming cursor
         cursor = GameObject.Find("AimingCursor");
 
@@ -449,50 +457,10 @@ public class Level : MonoBehaviour
         player.name = "PlayerBody";
         //*********************************************************
 
-
-        // place an exit from the maze at location (wee, lee) in terms of grid coordinates (integers)
-        // destroy the wall segment there - the grid will be used to place a house
-        // the exist will be placed as far as away from the character (yet, with some randomness, so that it's not always located at the corners)
+        // Choose goal location here
         int wee = -1;
         int lee = -1;
 
-        //*************************MAKE GOAL HERE************************************
-        /*
-        while (true && houseL == -1 && houseW == -1) // try until a valid position is sampled (skip if directly setting location)
-        {
-            if (wee != -1)
-                break;
-            for (int we = 0; we < width; we++)
-            {
-                for (int le = 0; le < length; le++)
-                {
-                    // skip corners
-                    if (we == 0 && le == 0)
-                        continue;
-                    if (we == 0 && le == length - 1)
-                        continue;
-                    if (we == width - 1 && le == 0)
-                        continue;
-                    if (we == width - 1 && le == length - 1)
-                        continue;
-                    if (we == 0 || le == 0 || wee == length - 1 || lee == length - 1)
-                    {
-                        // randomize selection
-                        if (Random.Range(0.0f, 1.0f) < 0.1f)
-                        {
-                            int dist = System.Math.Abs(wr - we) + System.Math.Abs(lr - le);
-                            if (dist > max_dist) // must be placed far away from the player
-                            {
-                                wee = we;
-                                lee = le;
-                                max_dist = dist;
-                            }
-                        }
-                    }
-                }
-            }
-        }*/
-        // Hard set goal to other end of arena, randomize location in length
         wee = width - 1;
         lee = Random.Range(1, length - 1);
 
@@ -504,18 +472,8 @@ public class Level : MonoBehaviour
 
         hW = wee;
         hL = lee;
-        //**************************************************************************
+        ///
 
-        // *** YOU NEED TO COMPLETE THIS PART OF THE FUNCTION  ***
-        // implement an algorithm that checks whether
-        // all paths between the player at (wr,lr) and the exit (wee, lee)
-        // are blocked by walls. i.e., there's no way to get to the exit!
-        // if this is the case, you must guarantee that there is at least 
-        // one accessible path (any path) from the initial player position to the exit
-        // by removing a few wall blocks (removing all of them is not acceptable!)
-        // this is done as a post-processing step after the CSP solution.
-        // It might be case that some constraints might be violated by this
-        // post-processing step - this is OK.
 
         // initialize table of nodes, costs, and parents
         Node[,] lookTable = new Node[width, length];  // each entry will contain [cost, parent w, parent l]
@@ -641,48 +599,44 @@ public class Level : MonoBehaviour
 
                 if ((w == wee) && (l == lee)) // this is the exit
                 {
+                    // Make wall for exit circle to stand on
                     GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                    cube.name = "WALL";
+                    cube.name = "GOAL_WALL";
                     cube.transform.localScale = new Vector3(bounds.size[0] / (float)width, air_platform_height, bounds.size[2] / (float)length);
                     cube.transform.position = new Vector3(x + bounds.size[0] / (2 * (float)width), y + air_platform_height / 2.0f, z + bounds.size[2] / (2 * (float)length));
-                    cube.GetComponent<Renderer>().material.color = new Color(0.6f, 0.8f, 0.8f);
+                    cube.GetComponent<Renderer>().material.color = new Color(0.2f, 0.2f, 0.2f);
 
+                    // make exit circle
                     GameObject goal = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                    goal.name = "Goal";
+                    goal.name = "GOAL";
                     goal.transform.localScale = new Vector3(bounds.size[0] / (float)width, 0.1f, bounds.size[2] / (float)length);
                     goal.transform.position = new Vector3(x + bounds.size[0] / (2 * (float)width), y + 0.1f + air_platform_height, z + bounds.size[2] / (2 * (float)length));
                     goal.GetComponent<Renderer>().material.color = new Color(0.6f, 2f, 0.8f);
                     goal.AddComponent<BoxCollider>();
                     goal.GetComponent<BoxCollider>().isTrigger = true;
-                    goal.GetComponent<BoxCollider>().size = new Vector3(1.0f, story_height * 10.0f, 1.0f);
+                    goal.GetComponent<BoxCollider>().size = new Vector3(1.0f, grapple_point_height * 15.0f, 1.0f);
                     Destroy(goal.GetComponent<SphereCollider>());
                     goal.AddComponent<Goal>();
-                    //********************INSTANTIATE A GOAL HERE*******************************
-                    /*
-                    GameObject house = Instantiate(house_prefab, new Vector3(0, 0, 0), Quaternion.identity);
-                    house.name = "HOUSE";
-                    house.transform.position = new Vector3(x + 0.5f, y, z + 0.5f);
-                    if (l == 0)
-                        house.transform.Rotate(0.0f, 270.0f, 0.0f);
-                    else if (w == 0)
-                        house.transform.Rotate(0.0f, 0.0f, 0.0f);
-                    else if (l == length - 1)
-                        house.transform.Rotate(0.0f, 90.0f, 0.0f);
-                    else if (w == width - 1)
-                        house.transform.Rotate(0.0f, 180.0f, 0.0f);
-                    house.AddComponent<BoxCollider>();
-                    house.GetComponent<BoxCollider>().isTrigger = true;
-                    house.GetComponent<BoxCollider>().size = new Vector3(3.0f, 3.0f, 3.0f);
-                    house.AddComponent<House>(); //*/
-                    //****************************************************************************
                 }
                 else if (solution[w, l][0] == TileType.WALL)
                 {
                     GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                    cube.name = "WALL";
-                    cube.transform.localScale = new Vector3(bounds.size[0] / (float)width, story_height, bounds.size[2] / (float)length);
-                    cube.transform.position = new Vector3(x + bounds.size[0] / (2 * (float)width), y + story_height / 2.0f, z + bounds.size[2] / (2 * (float)length));
-                    cube.GetComponent<Renderer>().material.color = new Color(0.6f, 0.8f, 0.8f);
+                    // Make border walls reach the ceiling
+                    if (w == 0 || l == 0 || l == length - 1 || w == width - 1)
+                    {
+                        cube.transform.localScale = new Vector3(bounds.size[0] / (float)width, grapple_point_height, bounds.size[2] / (float)length);
+                        cube.transform.position = new Vector3(x + bounds.size[0] / (2 * (float)width), y + 2.0f + grapple_point_height / 2.0f, z + bounds.size[2] / (2 * (float)length));
+                        cube.GetComponent<Renderer>().material.color = new Color(0.4f, 0.4f, 0.4f);
+                        cube.name = "BORDER_WALL";
+                    }
+                    else
+                    {
+                        cube.transform.localScale = new Vector3(bounds.size[0] / (float)width, story_height, bounds.size[2] / (float)length);
+                        cube.transform.position = new Vector3(x + bounds.size[0] / (2 * (float)width), y + story_height / 2.0f, z + bounds.size[2] / (2 * (float)length));
+                        cube.GetComponent<Renderer>().material.color = new Color(0.6f, 0.8f, 0.8f);
+                        cube.name = "WALL";
+                    }
+                    
                 }
                 else if (solution[w, l][0] == TileType.VIRUS)
                 {
@@ -765,6 +719,10 @@ public class Level : MonoBehaviour
         // Turn on crosshair
         cursor.SetActive(true);
 
+        // Turn ceiling back on
+        ceiling.GetComponent<Renderer>().enabled = true;
+        water.GetComponent<Renderer>().enabled = true;
+
         /*
         overheadCam.GetComponent<AudioListener>().enabled = false;
         fps_player_obj = Instantiate(fps_prefab);
@@ -832,6 +790,9 @@ public class Level : MonoBehaviour
                 // turn off aiming cursor if on
                 if (cursor.activeSelf)
                     cursor.SetActive(false);
+
+                ceiling.GetComponent<Renderer>().enabled = false;
+                water.GetComponent<Renderer>().enabled = false;
             }
         }
 
@@ -861,6 +822,9 @@ public class Level : MonoBehaviour
             // turn off aiming cursor if on
             if (cursor.activeSelf)
                 cursor.SetActive(false);
+
+            ceiling.GetComponent<Renderer>().enabled = false;
+            water.GetComponent<Renderer>().enabled = false;
 
             /*
             Object.Destroy(fps_player_obj);
