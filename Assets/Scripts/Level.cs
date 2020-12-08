@@ -62,6 +62,9 @@ public class Level : MonoBehaviour
     public Camera overhead_cam;
     public GameObject ceiling;
     public GameObject water;
+    public Material border_wall_mat;
+    public Material air_plat_mat;
+    public Material goal_wall_mat;
 
     // fields/variables accessible from other scripts
     internal GameObject player;
@@ -604,7 +607,7 @@ public class Level : MonoBehaviour
                     cube.name = "GOAL_WALL";
                     cube.transform.localScale = new Vector3(bounds.size[0] / (float)width, air_platform_height, bounds.size[2] / (float)length);
                     cube.transform.position = new Vector3(x + bounds.size[0] / (2 * (float)width), y + air_platform_height / 2.0f, z + bounds.size[2] / (2 * (float)length));
-                    cube.GetComponent<Renderer>().material.color = new Color(0.2f, 0.2f, 0.2f);
+                    cube.GetComponent<Renderer>().material = goal_wall_mat;
 
                     // make exit circle
                     GameObject goal = GameObject.CreatePrimitive(PrimitiveType.Sphere);
@@ -625,15 +628,17 @@ public class Level : MonoBehaviour
                     if (w == 0 || l == 0 || l == length - 1 || w == width - 1)
                     {
                         cube.transform.localScale = new Vector3(bounds.size[0] / (float)width, grapple_point_height, bounds.size[2] / (float)length);
-                        cube.transform.position = new Vector3(x + bounds.size[0] / (2 * (float)width), y + 2.0f + grapple_point_height / 2.0f, z + bounds.size[2] / (2 * (float)length));
-                        cube.GetComponent<Renderer>().material.color = new Color(0.4f, 0.4f, 0.4f);
+                        cube.transform.position = new Vector3(x + bounds.size[0] / (2 * (float)width), y + grapple_point_height / 2.0f, z + bounds.size[2] / (2 * (float)length));
+                        //cube.GetComponent<Renderer>().material.color = new Color(0.4f, 0.4f, 0.4f);
+                        cube.GetComponent<Renderer>().material = border_wall_mat;
                         cube.name = "BORDER_WALL";
                     }
                     else
                     {
                         cube.transform.localScale = new Vector3(bounds.size[0] / (float)width, story_height, bounds.size[2] / (float)length);
                         cube.transform.position = new Vector3(x + bounds.size[0] / (2 * (float)width), y + story_height / 2.0f, z + bounds.size[2] / (2 * (float)length));
-                        cube.GetComponent<Renderer>().material.color = new Color(0.6f, 0.8f, 0.8f);
+                        //cube.GetComponent<Renderer>().material.color = new Color(0.6f, 0.8f, 0.8f);
+                        cube.GetComponent<Renderer>().material = border_wall_mat;
                         cube.name = "WALL";
                     }
                     
@@ -654,7 +659,7 @@ public class Level : MonoBehaviour
                     cube.name = "GRAPPLE_POINT";
                     cube.transform.localScale = new Vector3(bounds.size[0] / (float)width, platform_size_y, bounds.size[2] / (float)length);
                     cube.transform.position = new Vector3(x + bounds.size[0] / (2 * (float)width), y + grapple_point_height - platform_size_y / 2.0f, z + bounds.size[2] / (2 * (float)length));
-                    cube.GetComponent<Renderer>().material.color = new Color(1f, 1f, 2f);
+                    cube.GetComponent<Renderer>().material.color = new Color(5f, 5f, 0f);
                     cube.layer = 8; // set it to be grappleable
 
                 }
@@ -665,7 +670,8 @@ public class Level : MonoBehaviour
                     cube.name = "AIR_PLATFORM";
                     cube.transform.localScale = new Vector3(bounds.size[0] / (float)width, platform_size_y, bounds.size[2] / (float)length);
                     cube.transform.position = new Vector3(x + bounds.size[0] / (2 * (float)width), y + air_platform_height - platform_size_y / 2.0f, z + bounds.size[2] / (2 * (float)length));
-                    cube.GetComponent<Renderer>().material.color = new Color(2f, 0f, 2f);
+                    //cube.GetComponent<Renderer>().material.color = new Color(2f, 0f, 2f);
+                    cube.GetComponent<Renderer>().material = air_plat_mat;
                     /*
                     GameObject water = Instantiate(water_prefab, new Vector3(0, 0, 0), Quaternion.identity);
                     water.name = "WATER";

@@ -58,7 +58,7 @@ public class MainMenuHandler : MonoBehaviour
     // Functions for handling menu loading
     public void NewGame()
     {
-        SceneManager.LoadScene("GameWorld");
+        SceneManager.LoadScene("Level");
     }
 
     public void ContinueGame()
