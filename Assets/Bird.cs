@@ -39,7 +39,6 @@ public class Bird : MonoBehaviour
         playerInSight = Physics.CheckSphere(transform.position, sight, whatisplayer.value);
 
         if(playerInSight) {
-            animation_controller.SetBool("aggrod", true);
             turnAround();
             playerInSight = false;
         }
