@@ -8,7 +8,6 @@ public class MainMenuHandler : MonoBehaviour
 {
     // buttons
     public Button newGame;
-    public Button loadGame;
     public Button timeTrial;
     public Button options;
     public Button instructions;
@@ -36,7 +35,6 @@ public class MainMenuHandler : MonoBehaviour
     void DisableButtons()
     {
         newGame.interactable = false;
-        loadGame.interactable = false;
         timeTrial.interactable = false;
         options.interactable = false;
         instructions.interactable = false;
@@ -47,7 +45,6 @@ public class MainMenuHandler : MonoBehaviour
     void EnableButtons()
     {
         newGame.interactable = true;
-        loadGame.interactable = true;
         timeTrial.interactable = true;
         options.interactable = true;
         instructions.interactable = true;

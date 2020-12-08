@@ -202,18 +202,20 @@ MonoBehaviour:
     D - Walk
     Right
 
+    E - Dash (Once Unlocked)
+
     Left Click - Shoot the Grapple Hook
 
-    Space - Jump
+    Space
+    - Jump
 
-    Move the
-    Mouse to look around
+    Move the Mouse to look around
 
 
-    Goal: Get all the Abilities and find the exit!
+    Goal: Get all the Abilities and
+    find the exit!
 
-    Be
-    careful of enemies and obstacles!'
+    Be careful of enemies and obstacles!'
 --- !u!222 &21152966
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1499,8 +1501,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   newGame: {fileID: 155664370}
-  loadGame: {fileID: 0}
-  timeTrial: {fileID: 0}
+  timeTrial: {fileID: 1874189874}
   options: {fileID: 1417647955}
   instructions: {fileID: 405258724}
   credits: {fileID: 659053283}

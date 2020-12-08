@@ -17,7 +17,10 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/GameWorld.unity
     guid: 0e7427a8124e2c8448f6a401a18621c7
+  - enabled: 0
+    path: 
+    guid: 00000000000000000000000000000000
   - enabled: 1
-    path: Assets/Level.unity
-    guid: e12d95a9b1cd0e145b86aa194a4d42ee
+    path: Assets/Scenes/Level.unity
+    guid: 711a1027910359d49a6bb384496685c6
   m_configObjects: {}
