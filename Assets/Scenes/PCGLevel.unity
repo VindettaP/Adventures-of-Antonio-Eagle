@@ -770,7 +770,7 @@ Transform:
   m_GameObject: {fileID: 318427825}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 30, y: 5, z: 5}
+  m_LocalScale: {x: 45, y: 5, z: 5}
   m_Children:
   - {fileID: 897399375}
   - {fileID: 2070224380}
@@ -789,13 +789,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f5a233501b50c7644b315d47cadffb49, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  width: 60
+  width: 90
   length: 10
   story_height: 20
   air_platform_height: 5
   grapple_point_height: 20
-  grapple_point_spacing: 2
-  num_grapples: 6
+  grapple_point_spacing_w: 2
+  grapple_point_spacing_l: 2
+  num_grapples: 8
   player_prefab: {fileID: 655701867, guid: 165571647e66a984e958e6f49a138e0c, type: 3}
   win_popup: {fileID: 2070848734}
   lose_popup: {fileID: 1066992457}
@@ -5491,7 +5492,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1878967249}
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: 140, z: 2.5}
+  m_LocalPosition: {x: 0, y: 200, z: 2.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}

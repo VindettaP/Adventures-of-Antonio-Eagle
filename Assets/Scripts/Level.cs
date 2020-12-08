@@ -52,7 +52,8 @@ public class Level : MonoBehaviour
     public float story_height = 2.5f;   // height of walls
     public float air_platform_height = 3.0f;
     public float grapple_point_height = 10.0f;
-    public int grapple_point_spacing = 3;
+    public int grapple_point_spacing_w = 3;
+    public int grapple_point_spacing_l = 3;
     public int num_grapples = 4;
     public GameObject player_prefab;
     public GameObject win_popup;
@@ -85,6 +86,7 @@ public class Level : MonoBehaviour
     private GameObject cursor;
     private bool playedJingle = false;
     private bool playedSplash = false;
+    private int playerW, playerL;
 
 
     private void Shuffle<T>(ref List<T> list)
@@ -101,11 +103,11 @@ public class Level : MonoBehaviour
     }
 
     // helper to check nearby spots on the grid and see if any are of specified type, true if any of type are within rad squares of start_w, start_l position
-    private bool CheckRadius(List<TileType>[,] grid, int start_w, int start_l, int rad, TileType type)
+    private bool CheckRadius(List<TileType>[,] grid, int start_w, int start_l, int w_dist, int l_dist, TileType type)
     {
-        for (int w = start_w - rad; w <= start_w + rad; w++)
+        for (int w = start_w - w_dist; w <= start_w + w_dist; w++)
         {
-            for (int l = start_l - rad; l <= start_l + rad; l++)
+            for (int l = start_l - l_dist; l <= start_l + l_dist; l++)
             {
                 // skip any l's or w's outside of the grid
                 if (l < 1 || l > length - 1 || w < 1 || w > length - 1)
@@ -171,7 +173,7 @@ public class Level : MonoBehaviour
                     wr = Random.Range(1, width - 1);
                     lr = Random.Range(1, length - 1);
 
-                    if (!CheckRadius(grid, wr, lr, grapple_point_spacing, TileType.GRAPPLE_POINT))
+                    if (!CheckRadius(grid, wr, lr, grapple_point_spacing_w, grapple_point_spacing_l, TileType.GRAPPLE_POINT))
                     {
                         grid[wr, lr] = new List<TileType> { TileType.GRAPPLE_POINT };
                         pos_grapples.Add(new int[2] { wr, lr });
@@ -183,11 +185,11 @@ public class Level : MonoBehaviour
             // Add some random air platforms and random walls to pass initial constraints
             int p = 0;
             int wall = 0;
-            while (p < (width * length) / 18)
+            while (p < (width * length) / 50)
             {
                 wr = Random.Range(1, width - 1);
                 lr = Random.Range(1, length - 1);
-                if (grid[wr, lr] == null)
+                if (grid[wr, lr] == null && !CheckRadius(grid, wr, lr, 2, 2, TileType.AIR_PLAT))
                 {
                     grid[wr, lr] = new List<TileType> { TileType.AIR_PLAT };
                     p++;
@@ -263,7 +265,7 @@ public class Level : MonoBehaviour
         }
 
         if ((assigned[(int)TileType.WALL] > width * length / 15) ||
-            assigned[(int)TileType.AIR_PLAT] > width * length / 15)
+            assigned[(int)TileType.AIR_PLAT] > width * length / 20)
             return true;
         else
             return false;
@@ -365,7 +367,7 @@ public class Level : MonoBehaviour
         grid[w, l] = new List<TileType> { t };
 
         // note that we negate the functions here i.e., check if we are consistent with the constraints we want
-        bool areWeConsistent = !TooLongWall(grid) && !TooManyWallsOrPlats(grid) && !TooFewWallsOrPlats(grid) && !WallsNearGrapples(grid);
+        bool areWeConsistent = !TooLongWall(grid) && !TooManyWallsOrPlats(grid) && !WallsNearGrapples(grid); //&& !TooFewWallsOrPlats(grid);
 
         grid[w, l] = new List<TileType>();
         grid[w, l].AddRange(old_assignment);
@@ -420,7 +422,7 @@ public class Level : MonoBehaviour
 
     // places the primitives/objects according to the grid assignents
     // you will need to edit this function (see below)
-    void DrawDungeon(List<TileType>[,] solution, int playerW = -1, int playerL = -1, int houseW = -1, int houseL = -1)
+    void DrawDungeon(List<TileType>[,] solution)
     {
         int wr = 0;
         int lr = 0;
@@ -436,6 +438,8 @@ public class Level : MonoBehaviour
         //**********INSTANTIATE PLAYER HERE*********************
         playerX = xp;
         playerZ = zp;
+        playerW = wr;
+        playerL = lr;
         player = Instantiate(player_prefab,
             new Vector3(xp + bounds.size[0] / (2 * (float)width), bounds.min[1] + air_platform_height + 5.0f, zp + bounds.size[2] / (2 * (float)length)),
             Quaternion.identity);
@@ -451,12 +455,6 @@ public class Level : MonoBehaviour
 
         wee = width - 1;
         lee = Random.Range(1, length - 1);
-
-        if (houseL != -1 && houseW != -1)
-        {
-            wee = houseW;
-            lee = houseL;
-        }
 
         hW = wee;
         hL = lee;
@@ -638,7 +636,15 @@ public class Level : MonoBehaviour
                     float platform_size_y = 1;
                     cube.name = "AIR_PLATFORM";
                     cube.transform.localScale = new Vector3(bounds.size[0] / (float)width, platform_size_y, bounds.size[2] / (float)length);
-                    cube.transform.position = new Vector3(x + bounds.size[0] / (2 * (float)width), y + air_platform_height - platform_size_y / 2.0f, z + bounds.size[2] / (2 * (float)length));
+                    float platY;
+                    if (w == playerW && l == playerL)
+                    {
+                        cube.name = "SPAWN_PLATFORM";
+                        platY = y + air_platform_height - platform_size_y / 2.0f;
+                    }
+                    else
+                        platY = Random.Range(y + air_platform_height - platform_size_y / 2.0f, y + (3.0f * air_platform_height) - platform_size_y / 2.0f);
+                    cube.transform.position = new Vector3(x + bounds.size[0] / (2 * (float)width), platY, z + bounds.size[2] / (2 * (float)length));
                     cube.GetComponent<Renderer>().material = air_plat_mat;
                 }
             }
