@@ -440,9 +440,10 @@ public class Level : MonoBehaviour
         playerZ = zp;
         playerW = wr;
         playerL = lr;
+
         player = Instantiate(player_prefab,
             new Vector3(playerX + bounds.size[0] / (2 * (float)width), bounds.min[1] + 3.0f + (3.0f * air_platform_height), playerZ + bounds.size[2] / (2 * (float)length)),
-            Quaternion.identity);
+            Quaternion.Euler(0, 90, 0));
         player.name = "PlayerBody";
 
         // Play background music
@@ -668,7 +669,7 @@ public class Level : MonoBehaviour
         // Spawn player at beginning
         player = Instantiate(player_prefab,
             new Vector3(playerX + bounds.size[0] / (2 * (float)width), bounds.min[1] + 3.0f + (3.0f * air_platform_height), playerZ + bounds.size[2] / (2 * (float)length)),
-            Quaternion.identity);
+            Quaternion.Euler(0, 90, 0));
         player.name = "PlayerBody";
 
         player.GetComponent<AudioSource>().PlayOneShot(bgMusic, 0.5f);
