@@ -206,21 +206,23 @@ MonoBehaviour:
 
     Space - Jump
 
+    Hold Shift - Run
+
     Tab - Swap Camera Mode
 
-    Move the Mouse
-    to look around
+    Move
+    the Mouse to look around
 
 
     Upgrades (Must be unlocked in Story Mode)
 
-    E (when in
-    midair) - Air Dash
+    E
+    (when in midair) - Air Dash
 
     Space (when in midair) - Double Jump
 
-    Left Click
-    (hold when aiming at a grapple point) - Shoot the Grapple Hook'
+    Left
+    Click (hold when aiming at a grapple point) - Shoot the Grapple Hook'
 --- !u!222 &21152966
 CanvasRenderer:
   m_ObjectHideFlags: 0
