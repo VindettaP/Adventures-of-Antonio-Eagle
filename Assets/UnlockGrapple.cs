@@ -16,6 +16,7 @@ public class UnlockGrapple : MonoBehaviour
     private bool triggered;
     void Start()
     {
+        tutorialCav.SetActive(false);
         trigger = gameObject.GetComponent<SphereCollider>();
         triggered = false;
         activated = new Vector3(wall.transform.position.x, wall.transform.position.y - 8.55f, wall.transform.position.z);

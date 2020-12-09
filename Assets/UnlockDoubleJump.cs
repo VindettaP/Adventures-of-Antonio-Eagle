@@ -9,7 +9,7 @@ public class UnlockDoubleJump : MonoBehaviour
     public GameObject tutorialCav;
     void Start()
     {
-        
+        tutorialCav.SetActive(false);
     }
 
     // Update is called once per frame
