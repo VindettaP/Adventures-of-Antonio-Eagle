@@ -41,6 +41,7 @@ public class EnemyAI : MonoBehaviour
         playerInSight = Physics.CheckSphere(transform.position, sight, whatisplayer.value);
 
         if(enemyHealth == 0){
+            Debug.Log("playing sound");
             deathSound.GetComponent<AudioSource>().Play();
             animation_controller.SetBool("dead", true);
             agent.isStopped = true;
@@ -51,7 +52,7 @@ public class EnemyAI : MonoBehaviour
             patrolling();
         } 
         if(playerInSight) {
-            sightSound.GetComponent<AudioSource>().Play();
+            //sightSound.GetComponent<AudioSource>().Play();
             animation_controller.SetBool("aggrod", true);
             chasePlayer();
         }

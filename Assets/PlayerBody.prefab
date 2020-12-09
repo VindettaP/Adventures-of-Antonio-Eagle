@@ -223,7 +223,7 @@ AudioListener:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 980599457011420581}
-  m_Enabled: 0
+  m_Enabled: 1
 --- !u!114 &980599457011420583
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -236,7 +236,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 08069f69b47a8604a8c159decc9189ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mouseSensitivity: 100
+  mouseSensitivity: 120
   thirdPersonMinAngle: -12
   thirdPersonMaxAngle: 35
   playerBody: {fileID: 980599457972375120}
@@ -519,12 +519,17 @@ MonoBehaviour:
   grappleAble:
     serializedVersion: 2
     m_Bits: 256
+  Enemy:
+    serializedVersion: 2
+    m_Bits: 8192
   grappleTip: {fileID: 980599457831898071}
   cam: {fileID: 980599457011420580}
   player: {fileID: 7442124442514359373}
-  grappleDistance: 100
+  grappleDistance: 30
   grappling: 0
   grapplePoint: {x: 0, y: 0, z: 0}
+  a_source: {fileID: 3029638352494871584}
+  grappleSound: {fileID: 8300000, guid: 4c2ace31943691442961f916c40de562, type: 3}
   grappleUnlocked: 0
 --- !u!1 &980599457831898068
 GameObject:
@@ -570,6 +575,7 @@ GameObject:
   - component: {fileID: 980599457972375123}
   - component: {fileID: 980599457972375122}
   - component: {fileID: 980599457972375087}
+  - component: {fileID: 3029638352494871584}
   m_Layer: 11
   m_Name: PlayerBody
   m_TagString: Player
@@ -656,26 +662,30 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   movement_direction: {x: 0, y: 0, z: 0}
-  walking_velocity: 10
+  walking_velocity: 5
   velocity: {x: 0, y: 0, z: 0}
   max_velocity: 0
   acceleration: 1
   turn_speed: 2000
   gravity: 9.8
-  grappleSpeed: 0.01
-  grappleLength: 5
-  dashLength: 0.5
-  dashstr: 0
+  grappleSpeed: 0.015
+  grappleLength: 2
+  dashLength: 0.25
+  dashstr: 40
   slowAfterDash: 0.2
-  jumpLength: 0.3
+  jumpLength: 0.35
   jumpStrength: 5
   timeBetweenJumps: 1
-  drag: 0.5
+  drag: 0.4
   airDrag: 0.02
-  doubleJumpUnlocked: 0
-  grappleUnlocked: 0
-  dashUnlocked: 0
-  state: 
+  doubleJumpUnlocked: 1
+  grappleUnlocked: 1
+  dashUnlocked: 1
+  walkStep: {fileID: 8300000, guid: ebf0f362fa4996a44a3ca0d417364918, type: 3}
+  runStep: {fileID: 8300000, guid: b8375d39273e40f47b3be704c90a2653, type: 3}
+  jump: {fileID: 8300000, guid: e63c16c060547a84bbe305774cb5001b, type: 3}
+  land: {fileID: 8300000, guid: 1adfbc41b703ff243923348d33e4f81e, type: 3}
+  dash: {fileID: 8300000, guid: 095c2d1f105b170419d6c32e7d7b1796, type: 3}
   fPerson: {fileID: 980599457011420581}
   tPerson: {fileID: 980599456812357382}
   dashes: 0
@@ -692,7 +702,7 @@ CharacterController:
   serializedVersion: 2
   m_Height: 1.75
   m_Radius: 0.3
-  m_SlopeLimit: 0
+  m_SlopeLimit: 70
   m_StepOffset: 0.3
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
@@ -710,6 +720,102 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 0.5, y: 1.8, z: 0.75}
   m_Center: {x: 0.000000059604645, y: 0, z: -0.00000008940697}
+--- !u!82 &3029638352494871584
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 980599457972375084}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_PlayOnAwake: 1
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!143 &980599457294525666
 CharacterController:
   m_ObjectHideFlags: 0
@@ -774,7 +880,11 @@ MonoBehaviour:
   doubleJumpUnlocked: 0
   grappleUnlocked: 0
   dashUnlocked: 0
-  state: 
+  walkStep: {fileID: 0}
+  runStep: {fileID: 0}
+  jump: {fileID: 0}
+  land: {fileID: 0}
+  dash: {fileID: 0}
   fPerson: {fileID: 0}
   tPerson: {fileID: 0}
   dashes: 0

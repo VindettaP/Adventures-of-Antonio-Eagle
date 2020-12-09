@@ -8,6 +8,8 @@ public class Finish : MonoBehaviour
     private Collider end;
     public GameObject endScreen;
     public GameObject victory;
+    public Camera main_cam;
+
     void Awake()
     {
         end = gameObject.GetComponent<BoxCollider>();
@@ -23,6 +25,7 @@ public class Finish : MonoBehaviour
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
             Time.timeScale = 0;
+            main_cam.gameObject.SetActive(true);
         }
     }
 }
