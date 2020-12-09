@@ -103,11 +103,13 @@ public class player : MonoBehaviour
         dashing = false;
         timeBetweenJumps = 0.1f;
         a_source = GetComponent<AudioSource>();
+        Debug.Log("RESPAWNED");
     }
 
     // Update is called once per frame
     void Update()
     {
+        if(playerModel != null){
         // Unlock grapple if we get it
         grappleScript.grappleUnlocked = grappleUnlocked;
 
@@ -409,11 +411,15 @@ public class player : MonoBehaviour
             PositionUpdate(xdirection, zdirection);
         }
     }
+    }
 
     // uses a short raycast down to see if player model is on the ground
     bool IsGrounded()
     {
+        if(playerModel != null)
         return Physics.Raycast(playerModel.transform.position, -Vector3.up, 0.1f);
+        else
+        return true;
     }
 
     void MoveTowardsGrapple()

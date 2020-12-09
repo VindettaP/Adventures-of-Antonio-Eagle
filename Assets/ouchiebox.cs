@@ -20,10 +20,13 @@ public class ouchiebox : MonoBehaviour
     void OnTriggerEnter(Collider other)
 {
 if (other.gameObject.tag == "Player") {
-    Destroy (other.gameObject);
-    Instantiate(playerPrefab, checkpoint.transform.position, checkpoint.transform.rotation);
-}
-}
+        Debug.Log("aa");
+    //GameObject newplayer = Instantiate(playerPrefab, checkpoint.transform.position, checkpoint.transform.rotation);
+    //Destroy (other.gameObject);
+    other.gameObject.transform.position = checkpoint.transform.position;
+
+    }
+    }
 
 } 
 
