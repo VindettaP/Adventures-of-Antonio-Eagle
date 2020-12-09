@@ -1,2 +1,2 @@
-# CS563_Final
-Final Project for CS563
+# CS590G_Final
+Final Project for CS590G
