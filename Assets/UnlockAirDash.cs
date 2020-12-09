@@ -4,8 +4,9 @@ using UnityEngine;
 
 public class UnlockAirDash : MonoBehaviour
 {
-    public GameObject unlockDash;
     // Start is called before the first frame update
+    public GameObject unlockDash;
+    public GameObject tutorialCav;
     void Start(){
 
     }
@@ -13,6 +14,14 @@ public class UnlockAirDash : MonoBehaviour
         if(other.name == "PlayerBody"){
             unlockDash.GetComponent<AudioSource>().Play();
             other.GetComponent<player>().dashUnlocked = true;
+            tutorialCav.SetActive(true);
+            //Cursor.lockState = CursorLockMode.None;
+            //Cursor.visible = true;
+            Invoke("DisableText", 5f);//invoke after 5 seconds
         }
     }
+       void DisableText()
+   { 
+      tutorialCav.SetActive(false); 
+   }    
 }

@@ -8,6 +8,7 @@ public class UnlockGrapple : MonoBehaviour
     public GameObject wall;
     private Vector3 velocity = Vector3.zero;
     public GameObject unlockGrapple;
+    public GameObject tutorialCav;
     // Start is called before the first frame update
 
     Vector3 activated;
@@ -35,6 +36,14 @@ public class UnlockGrapple : MonoBehaviour
             gameObject.GetComponent<MeshRenderer>().enabled = false;
             gameObject.GetComponent<SphereCollider>().enabled = false;
             other.GetComponent<player>().grappleUnlocked = true;
+            tutorialCav.SetActive(true);
+            //Cursor.lockState = CursorLockMode.None;
+            //Cursor.visible = true;
+            Invoke("DisableText", 5f);//invoke after 5 seconds
         }
     }
+       void DisableText()
+   { 
+      tutorialCav.SetActive(false); 
+   }    
 }
