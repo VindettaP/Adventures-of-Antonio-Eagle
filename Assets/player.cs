@@ -212,7 +212,7 @@ public class player : MonoBehaviour
             }
             else if (!grounded) // still in midair post jump
                 state = "midAir";
-            else if ((jumpTime < 0 && grounded && jumping) || (velocity.y < -0.6f && grounded)) // landed from a jump
+            else if ((jumpTime < 0 && grounded && jumping) || (velocity.y < -0.55f && grounded)) // landed from a jump
             {
                 state = "landing";
                 jumping = false;
