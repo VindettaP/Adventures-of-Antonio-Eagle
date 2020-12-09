@@ -8,7 +8,7 @@ public class UnlockAirDash : MonoBehaviour
     public GameObject unlockDash;
     public GameObject tutorialCav;
     void Start(){
-
+        tutorialCav.SetActive(false);
     }
     void OnTriggerEnter(Collider other){
         if(other.name == "PlayerBody"){
