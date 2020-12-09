@@ -23,7 +23,8 @@ if (other.gameObject.tag == "Player") {
         Debug.Log("aa");
     //GameObject newplayer = Instantiate(playerPrefab, checkpoint.transform.position, checkpoint.transform.rotation);
     //Destroy (other.gameObject);
-    other.gameObject.transform.position = checkpoint.transform.position;
+    other.gameObject.transform.position = checkpoint.gameObject.transform.position;
+    Physics.SyncTransforms();
 
     }
     }

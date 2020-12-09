@@ -9,6 +9,7 @@ public class RoomTrigger : MonoBehaviour
     private Vector3 velocity = Vector3.zero;
     private bool triggered = false;
     private Vector3 activated;
+    public GameObject close;
     // Start is called before the first frame update
     void Start()
     {
@@ -28,6 +29,7 @@ public class RoomTrigger : MonoBehaviour
     void OnTriggerEnter(Collider other){
         if(other.name == "PlayerBody"){
             triggered = true;
+            close.GetComponent<AudioSource>().Play();
             gameObject.GetComponent<SphereCollider>().enabled = false;
             gameObject.GetComponent<MeshRenderer>().enabled = false;
         }
