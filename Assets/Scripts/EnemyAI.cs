@@ -42,7 +42,7 @@ public class EnemyAI : MonoBehaviour
 
         if(enemyHealth == 0){
             Debug.Log("playing sound");
-            deathSound.GetComponent<AudioSource>().Play();
+            //deathSound.GetComponent<AudioSource>().PlayDelayed(0);
             animation_controller.SetBool("dead", true);
             agent.isStopped = true;
         }

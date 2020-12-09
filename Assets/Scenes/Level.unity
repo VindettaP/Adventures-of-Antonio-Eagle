@@ -6648,6 +6648,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d3cee4219a9dfc40a00a0eed105439e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  deathSound: {fileID: 1091170750}
 --- !u!1001 &235824996
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -15827,6 +15828,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d3cee4219a9dfc40a00a0eed105439e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  deathSound: {fileID: 1091170750}
 --- !u!1001 &650886917
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -25600,7 +25602,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: 5b67489424162414385671920e756521, type: 3}
+  m_audioClip: {fileID: 8300000, guid: ae10c4630168e424380d7835b14bcabf, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
@@ -25613,7 +25615,7 @@ AudioSource:
   MinDistance: 1
   MaxDistance: 500
   Pan2D: 0
-  rolloffMode: 0
+  rolloffMode: 1
   BypassEffects: 0
   BypassListenerEffects: 0
   BypassReverbZones: 0
@@ -54325,6 +54327,10 @@ PrefabInstance:
       value: PlayerBody
       objectReference: {fileID: 0}
     - target: {fileID: 980599457972375120, guid: 00884effe02663a45a7b673a541e4141, type: 3}
+      propertyPath: m_RootOrder
+      value: 28
+      objectReference: {fileID: 0}
+    - target: {fileID: 980599457972375120, guid: 00884effe02663a45a7b673a541e4141, type: 3}
       propertyPath: m_LocalPosition.x
       value: 500
       objectReference: {fileID: 0}
@@ -54337,6 +54343,10 @@ PrefabInstance:
       value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 980599457972375120, guid: 00884effe02663a45a7b673a541e4141, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 980599457972375120, guid: 00884effe02663a45a7b673a541e4141, type: 3}
       propertyPath: m_LocalRotation.x
       value: 0
       objectReference: {fileID: 0}
@@ -54347,14 +54357,6 @@ PrefabInstance:
     - target: {fileID: 980599457972375120, guid: 00884effe02663a45a7b673a541e4141, type: 3}
       propertyPath: m_LocalRotation.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 980599457972375120, guid: 00884effe02663a45a7b673a541e4141, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 980599457972375120, guid: 00884effe02663a45a7b673a541e4141, type: 3}
-      propertyPath: m_RootOrder
-      value: 28
       objectReference: {fileID: 0}
     - target: {fileID: 980599457972375120, guid: 00884effe02663a45a7b673a541e4141, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
