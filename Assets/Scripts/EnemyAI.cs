@@ -41,10 +41,10 @@ public class EnemyAI : MonoBehaviour
         playerInSight = Physics.CheckSphere(transform.position, sight, whatisplayer.value);
 
         if(enemyHealth == 0){
-            Debug.Log("playing sound");
             //deathSound.GetComponent<AudioSource>().PlayDelayed(0);
             animation_controller.SetBool("dead", true);
             agent.isStopped = true;
+            agent.velocity = new Vector3(0, 0, 0);
         }
 
         if(!playerInSight){

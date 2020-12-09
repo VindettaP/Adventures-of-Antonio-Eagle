@@ -14,7 +14,6 @@ public class Grapple : MonoBehaviour
     public AudioSource a_source;
     public AudioClip grappleSound;
     public bool grappleUnlocked = false;
-    private bool enemyHit = false;
 
     private LineRenderer lr;
     
@@ -58,7 +57,6 @@ public class Grapple : MonoBehaviour
         {
             if(hit.collider.gameObject.tag == "Enemy"){
                 grapplePoint = hit.point;
-                enemyHit = true;
                 hit.collider.gameObject.GetComponent<EnemyAI>().enemyHealth = 0;
                 float distanceFromPoint = Vector3.Distance(player.position, grapplePoint);
                 lr.positionCount = 2;

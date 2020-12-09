@@ -70,6 +70,7 @@ public class player : MonoBehaviour
     private float dashTimeLeft;
     private float xDirDash = 0;
     private float zDirDash = 0;
+    private float postGrappleTime = 0;
 
     // Sound variables
     private float walkInterval = 0.433f;
@@ -78,6 +79,7 @@ public class player : MonoBehaviour
     private float runTime = 0f;
     private bool jumpSound = true;
     private bool doubleJumpSound = true;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -103,314 +105,343 @@ public class player : MonoBehaviour
         dashing = false;
         timeBetweenJumps = 0.1f;
         a_source = GetComponent<AudioSource>();
-        Debug.Log("RESPAWNED");
     }
 
     // Update is called once per frame
     void Update()
     {
-        if(playerModel != null){
-        // Unlock grapple if we get it
-        grappleScript.grappleUnlocked = grappleUnlocked;
-
-        // Check if player model is grounded
-        grounded = IsGrounded();
-
-        if (gravenable)
-            gravity = gravconst;
-        else
-            gravity = 0;
-
-        if (doubleJumped)
-            doubleJumpTime -= Time.deltaTime;
-
-        if (jumping)
+        if (playerModel != null)
         {
-            jumpTime -= Time.deltaTime; // decrease time in jump while we are jumping
-        }
-        else
-            jumpCooldown -= Time.deltaTime;
-
-        // Check all keys first for convenience
-        upKey = Input.GetKey("w") || Input.GetKey(KeyCode.UpArrow);
-        downKey = Input.GetKey("s") || Input.GetKey(KeyCode.DownArrow);
-        leftKey = Input.GetKey("a") || Input.GetKey(KeyCode.LeftArrow);
-        rightKey = Input.GetKey("d") || Input.GetKey(KeyCode.RightArrow);
-        ctrlDown = Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
-        shiftDown = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
-        spaceDown = Input.GetKeyDown(KeyCode.Space);
-        eDown = Input.GetKeyDown(KeyCode.E);
-        tabDown = Input.GetKeyDown(KeyCode.Tab);
-
-        // set state based on input
-        /* in animation controller, states controlled by int
-         * 0 = idle
-         * 1 = walk forward
-         * 3 = run forward
-         * 4 = jumping
-         * 5 = mid air
-         * 6 = landing
-        */
-        //Changes between regular camera to the other camera 
-        if(tabDown && camerap && Time.timeScale > 0)
-        {
-            fPerson.SetActive(true);
-            tPerson.SetActive(false);
-            camerap = false;
-            timeBetweenJumps = 0.1f;
-
-            // Enable aiming cursor in first person
-            cursor.SetActive(true);
-
-            // Set player model to face direction of first person camera when switching
-            float y = fPerson.transform.eulerAngles.y;
-            playerModel.transform.eulerAngles = new Vector3(playerModel.transform.eulerAngles.x, y, playerModel.transform.eulerAngles.z);
-
-            // disable model render in first person
-            modelRender.GetComponent<SkinnedMeshRenderer>().enabled = false;
-        }
-        else if (tabDown && !camerap && Time.timeScale > 0)
-        {
-            tPerson.SetActive(true);
-            fPerson.SetActive(false);
-            grappleScript.StopGrapple();
-            camerap = true;
-            timeBetweenJumps = 0.5f;
-
-            // enable model render in third person
-            modelRender.GetComponent<SkinnedMeshRenderer>().enabled = true;
-
-            // disable aiming cursor in third person
-            cursor.SetActive(false);
-        }
-        
-
-        if (!grounded && doubleJumpUnlocked && spaceDown && !doubleJumped) // handle double jumping
-        {
-            doubleJumpTime = jumpLength; // just start the upward velocity again
-            doubleJumped = true;
-            if (doubleJumpSound)
+            // update post grapple time
+            if (state != "grappling")
             {
-                doubleJumpSound = false;
-                a_source.PlayOneShot(jump);
+                postGrappleTime += Time.deltaTime;
             }
-        }
 
-        if (grappleScript.grappling)
-        {
-            state = "grappling";
-            jumping = true;
-        }
-        else if (!grounded) // still in midair post jump
-            state = "midAir";
-        else if ((jumpTime < 0 && grounded && jumping) || (velocity.y < -0.6f && grounded)) // landed from a jump
-        {
-            state = "landing";
-            jumping = false;
-            doubleJumped = false;
-            jumpCooldown = timeBetweenJumps;
-            jumpTime = jumpLength; // reset jump timer
-            velocity.y = -0.5f; // reset velocity
-        }
-        else if ((spaceDown && !jumping && jumpCooldown < 0) || (jumping && jumpTime > 0))
-        {
-            state = "jumpStart";
-            jumping = true;
-        }
-        else if (shiftDown && (leftKey || rightKey || upKey || downKey))
-            state = "run";
-        else if (leftKey || rightKey || upKey || downKey)
-            state = "forwardWalk";
-        else
-            state = "idle";
+            // Unlock grapple if we get it
+            grappleScript.grappleUnlocked = grappleUnlocked;
 
-        // FSM for character behavior, also update velocity and handle turning
-        switch (state)
-        {
-            case "idle":
-                animation_controller.SetInteger("state", 0);
-                max_velocity = walking_velocity;
-                break;
-            case "forwardWalk":
-                animation_controller.SetInteger("state", 1);
-                max_velocity = walking_velocity;
-                if (Time.time - walkTime > walkInterval)
-                {
-                    a_source.PlayOneShot(walkStep);
-                    walkTime = Time.time;
-                }
-                break;
-            case "jumpStart":
-                animation_controller.SetInteger("state", 4);
-                if (jumpSound)
-                {
-                    jumpSound = false;
-                    a_source.PlayOneShot(jump);
-                }
-                break;
-            case "midAir":
-                animation_controller.SetInteger("state", 5);
-                break;
-            case "landing":
-                a_source.PlayOneShot(land);
-                animation_controller.SetInteger("state", 6);
-                max_velocity = walking_velocity;
-                jumpSound = true;
-                doubleJumpSound = true;
-                break;
-            case "run":
-                animation_controller.SetInteger("state", 3);
-                max_velocity = 2.0f * walking_velocity;
-                if (Time.time - runTime > runInterval)
-                {
-                    a_source.PlayOneShot(runStep);
-                    runTime = Time.time;
-                }
-                break;
-            case "grappling":
-                max_velocity = 2.0f * walking_velocity;
-                break;
-            default:
-                break;
-        }
+            // Check if player model is grounded
+            grounded = IsGrounded();
 
-
-        // dir is the direction to rotate based on movement
-        string dir = "north";
-        if ((upKey || downKey) && (!rightKey && !leftKey))
-        {
-            // case where no strafing, go straight, also do this if both keys are held
-            if (downKey)
-                dir = "south";
+            if (gravenable)
+                gravity = gravconst;
             else
-                dir = "north";
-        }
-        else if (leftKey && !rightKey && (upKey || downKey))
-        {
-            // strafing left case
-            if (upKey)
-                dir = "northEast";
-            else if (downKey)
-                dir = "southEast";
-        }
-        else if (rightKey && !leftKey && (upKey || downKey))
-        {
-            // strafing right case
-            if (upKey)
-                dir = "northWest";
-            else if (downKey)
-                dir = "southWest";
-        }
-        else if (leftKey && !rightKey)
-        {
-            // moving left case
-            dir = "east";
-        }
-        else if (rightKey && !leftKey)
-        {
-            // moving right case
-            dir = "west";
-        }
-        else
-            dir = "none";
+                gravity = 0;
 
+            if (doubleJumped)
+                doubleJumpTime -= Time.deltaTime;
 
-        //DASHING
-        if (dashUnlocked)
-        {
-            if (eDown && !grounded && dashTimeLeft > 0 && !dashing)
+            if (jumping)
             {
-                dashing = true;
-                dashTimeLeft = dashLength;
-                a_source.PlayOneShot(dash);
+                jumpTime -= Time.deltaTime; // decrease time in jump while we are jumping
+            }
+            else
+                jumpCooldown -= Time.deltaTime;
 
-                // Set direction for dash
-                switch (dir)
+            // Check all keys first for convenience
+            upKey = Input.GetKey("w") || Input.GetKey(KeyCode.UpArrow);
+            downKey = Input.GetKey("s") || Input.GetKey(KeyCode.DownArrow);
+            leftKey = Input.GetKey("a") || Input.GetKey(KeyCode.LeftArrow);
+            rightKey = Input.GetKey("d") || Input.GetKey(KeyCode.RightArrow);
+            ctrlDown = Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
+            shiftDown = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
+            spaceDown = Input.GetKeyDown(KeyCode.Space);
+            eDown = Input.GetKeyDown(KeyCode.E);
+            tabDown = Input.GetKeyDown(KeyCode.Tab);
+
+            // set state based on input
+            /* in animation controller, states controlled by int
+             * 0 = idle
+             * 1 = walk forward
+             * 3 = run forward
+             * 4 = jumping
+             * 5 = mid air
+             * 6 = landing
+            */
+            //Changes between regular camera to the other camera 
+            if (tabDown && camerap && Time.timeScale > 0)
+            {
+                fPerson.SetActive(true);
+                tPerson.SetActive(false);
+                camerap = false;
+                timeBetweenJumps = 0.1f;
+
+                // Enable aiming cursor in first person
+                cursor.SetActive(true);
+
+                // Set player model to face direction of first person camera when switching
+                float y = fPerson.transform.eulerAngles.y;
+                playerModel.transform.eulerAngles = new Vector3(playerModel.transform.eulerAngles.x, y, playerModel.transform.eulerAngles.z);
+
+                // disable model render in first person
+                modelRender.GetComponent<SkinnedMeshRenderer>().enabled = false;
+            }
+            else if (tabDown && !camerap && Time.timeScale > 0)
+            {
+                tPerson.SetActive(true);
+                fPerson.SetActive(false);
+                grappleScript.StopGrapple();
+                camerap = true;
+                timeBetweenJumps = 0.5f;
+
+                // enable model render in third person
+                modelRender.GetComponent<SkinnedMeshRenderer>().enabled = true;
+
+                // disable aiming cursor in third person
+                cursor.SetActive(false);
+            }
+
+
+            if (!grounded && doubleJumpUnlocked && spaceDown && !doubleJumped) // handle double jumping
+            {
+                doubleJumpTime = jumpLength; // just start the upward velocity again
+                doubleJumped = true;
+                if (doubleJumpSound)
                 {
-                    case "north":
-                        xDirDash = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y));
-                        zDirDash = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y));
-                        break;
-                    case "south":
-                        xDirDash = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 180));
-                        zDirDash = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 180));
-                        break;
-                    case "east":
-                        xDirDash = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 270));
-                        zDirDash = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 270));
-                        break;
-                    case "west":
-                        xDirDash = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 90));
-                        zDirDash = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 90));
-                        break;
-                    case "northEast":
-                        xDirDash = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 315));
-                        zDirDash = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 315));
-                        break;
-                    case "northWest":
-                        xDirDash = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 45));
-                        zDirDash = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 45));
-                        break;
-                    case "southEast":
-                        xDirDash = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 225));
-                        zDirDash = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 225));
-                        break;
-                    case "southWest":
-                        xDirDash = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 135));
-                        zDirDash = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 135));
-                        break;
-                    case "none":
-                        xDirDash = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y));
-                        zDirDash = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y));
-                        break;
-                    default:
-                        xDirDash = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y));
-                        zDirDash = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y));
-                        break;
+                    doubleJumpSound = false;
+                    a_source.PlayOneShot(jump, 0.7f);
                 }
             }
-            if (dashing == true && dashTimeLeft > 0)
+
+            if (grappleScript.grappling)
             {
-                dashTimeLeft -= Time.deltaTime;
-                velocity.x = dashstr * xDirDash;
-                velocity.z = dashstr * zDirDash;
-                velocity.y = 0;
+                state = "grappling";
+                jumping = true;
+                postGrappleTime = 0;
             }
-            if (dashTimeLeft <= 0 && dashing == true)
+            else if (!grounded) // still in midair post jump
+                state = "midAir";
+            else if ((jumpTime < 0 && grounded && jumping) || (velocity.y < -0.6f && grounded)) // landed from a jump
             {
+                state = "landing";
+                jumping = false;
+                doubleJumped = false;
+                jumpCooldown = timeBetweenJumps;
+                jumpTime = jumpLength; // reset jump timer
+                velocity.y = -0.5f; // reset velocity
+            }
+            else if ((spaceDown && !jumping && jumpCooldown < 0) || (jumping && jumpTime > 0))
+            {
+                state = "jumpStart";
+                jumping = true;
+            }
+            else if (shiftDown && (leftKey || rightKey || upKey || downKey))
+                state = "run";
+            else if (leftKey || rightKey || upKey || downKey)
+                state = "forwardWalk";
+            else
+                state = "idle";
+
+            // FSM for character behavior, also update velocity and handle turning
+            switch (state)
+            {
+                case "idle":
+                    animation_controller.SetInteger("state", 0);
+                    max_velocity = walking_velocity;
+                    break;
+                case "forwardWalk":
+                    animation_controller.SetInteger("state", 1);
+                    max_velocity = walking_velocity;
+                    if (Time.time - walkTime > walkInterval)
+                    {
+                        a_source.PlayOneShot(walkStep);
+                        walkTime = Time.time;
+                    }
+                    break;
+                case "jumpStart":
+                    animation_controller.SetInteger("state", 4);
+                    if (jumpSound)
+                    {
+                        jumpSound = false;
+                        a_source.PlayOneShot(jump);
+                    }
+                    break;
+                case "midAir":
+                    animation_controller.SetInteger("state", 5);
+                    break;
+                case "landing":
+                    a_source.PlayOneShot(land);
+                    animation_controller.SetInteger("state", 6);
+                    max_velocity = walking_velocity;
+                    jumpSound = true;
+                    doubleJumpSound = true;
+                    break;
+                case "run":
+                    animation_controller.SetInteger("state", 3);
+                    max_velocity = 2.0f * walking_velocity;
+                    if (Time.time - runTime > runInterval)
+                    {
+                        a_source.PlayOneShot(runStep);
+                        runTime = Time.time;
+                    }
+                    break;
+                case "grappling":
+                    max_velocity = 2.0f * walking_velocity;
+                    break;
+                default:
+                    break;
+            }
+
+
+            // Change air speed based on sprint key
+            if (state == "midAir" && shiftDown)
+            {
+                max_velocity = 2.0f * walking_velocity;
+            }
+            else if (state == "midAir")
+            {
+                max_velocity = walking_velocity;
+            }
+
+            // Change Air drag based on grapple
+            if (state == "grappling" || postGrappleTime < 0.5f)
+            {
+                airDrag = 0.02f;
+            }
+            else
+            {
+                airDrag = drag;
+            }
+
+            // dir is the direction to rotate based on movement
+            string dir = "north";
+            if ((upKey || downKey) && (!rightKey && !leftKey))
+            {
+                // case where no strafing, go straight, also do this if both keys are held
+                if (downKey)
+                    dir = "south";
+                else
+                    dir = "north";
+            }
+            else if (leftKey && !rightKey && (upKey || downKey))
+            {
+                // strafing left case
+                if (upKey)
+                    dir = "northEast";
+                else if (downKey)
+                    dir = "southEast";
+            }
+            else if (rightKey && !leftKey && (upKey || downKey))
+            {
+                // strafing right case
+                if (upKey)
+                    dir = "northWest";
+                else if (downKey)
+                    dir = "southWest";
+            }
+            else if (leftKey && !rightKey)
+            {
+                // moving left case
+                dir = "east";
+            }
+            else if (rightKey && !leftKey)
+            {
+                // moving right case
+                dir = "west";
+            }
+            else
+                dir = "none";
+
+
+            //DASHING
+            if (dashUnlocked)
+            {
+                if (eDown && !grounded && dashTimeLeft > 0 && !dashing)
+                {
+                    dashing = true;
+                    dashTimeLeft = dashLength;
+                    a_source.PlayOneShot(dash);
+
+                    // Set direction for dash
+                    switch (dir)
+                    {
+                        case "north":
+                            xDirDash = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y));
+                            zDirDash = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y));
+                            break;
+                        case "south":
+                            xDirDash = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 180));
+                            zDirDash = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 180));
+                            break;
+                        case "east":
+                            xDirDash = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 270));
+                            zDirDash = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 270));
+                            break;
+                        case "west":
+                            xDirDash = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 90));
+                            zDirDash = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 90));
+                            break;
+                        case "northEast":
+                            xDirDash = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 315));
+                            zDirDash = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 315));
+                            break;
+                        case "northWest":
+                            xDirDash = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 45));
+                            zDirDash = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 45));
+                            break;
+                        case "southEast":
+                            xDirDash = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 225));
+                            zDirDash = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 225));
+                            break;
+                        case "southWest":
+                            xDirDash = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 135));
+                            zDirDash = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y + 135));
+                            break;
+                        case "none":
+                            xDirDash = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y));
+                            zDirDash = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y));
+                            break;
+                        default:
+                            xDirDash = Mathf.Sin(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y));
+                            zDirDash = Mathf.Cos(Mathf.Deg2Rad * (transform.rotation.eulerAngles.y));
+                            break;
+                    }
+                }
+                if (dashing == true && dashTimeLeft > 0)
+                {
+                    dashTimeLeft -= Time.deltaTime;
+                    velocity.x = dashstr * xDirDash;
+                    velocity.z = dashstr * zDirDash;
+                    velocity.y = 0;
+                }
+                if (dashTimeLeft <= 0 && dashing == true)
+                {
+                    dashing = false;
+                    velocity.x *= slowAfterDash;
+                    velocity.z *= slowAfterDash;
+                }
+            }
+
+            if (!grounded)
+            {
+                gravity = gravconst;
+            }
+            if (grounded)
+            {
+                dashTimeLeft = dashLength;
                 dashing = false;
-                velocity.x *= slowAfterDash; 
-                velocity.z *= slowAfterDash;
+            }
+
+            // update movement direction based on keys
+            float xdirection = 0.0f;
+            float zdirection = 0.0f;
+            xdirection = Mathf.Sin(Mathf.Deg2Rad * playerModel.transform.rotation.eulerAngles.y);
+            zdirection = Mathf.Cos(Mathf.Deg2Rad * playerModel.transform.rotation.eulerAngles.y);
+
+            if (camerap) // handle 3rd person movement
+            {
+                if (state != "jump" && state != "midAir" && grounded) // don't rotate player if jumping
+                    RotationUpdate(dir);
+                VelocityUpdate(xdirection, zdirection, dir);
+                PositionUpdate(xdirection, zdirection);
+            }
+            else // handle 1st person movement (don't rotate body in 1st person)
+            {
+                VelocityUpdate(xdirection, zdirection, dir);
+                PositionUpdate(xdirection, zdirection);
             }
         }
-
-        if(!grounded){
-            gravity = gravconst;
-        }
-        if(grounded){
-            dashTimeLeft = dashLength;
-            dashing = false;
-        }
-
-        // update movement direction based on keys
-        float xdirection = 0.0f;
-        float zdirection = 0.0f;
-        xdirection = Mathf.Sin(Mathf.Deg2Rad * playerModel.transform.rotation.eulerAngles.y);
-        zdirection = Mathf.Cos(Mathf.Deg2Rad * playerModel.transform.rotation.eulerAngles.y);
-
-        if (camerap) // handle 3rd person movement
-        {
-            if (state != "jump" && state != "midAir" && grounded) // don't rotate player if jumping
-                RotationUpdate(dir);
-            VelocityUpdate(xdirection, zdirection, dir);
-            PositionUpdate(xdirection, zdirection);
-        }
-        else // handle 1st person movement (don't rotate body in 1st person)
-        {
-            VelocityUpdate(xdirection, zdirection, dir);
-            PositionUpdate(xdirection, zdirection);
-        }
-    }
     }
 
     // uses a short raycast down to see if player model is on the ground
@@ -646,7 +677,7 @@ public class player : MonoBehaviour
 
         if (state != "jump" && !dontMove)
         {
-            if ((target + 1) > playerModel.transform.rotation.eulerAngles.y && (target - 1) < playerModel.transform.rotation.eulerAngles.y)
+            if ((target + 10) > playerModel.transform.rotation.eulerAngles.y && (target - 10) < playerModel.transform.rotation.eulerAngles.y)
             {
                 playerModel.transform.eulerAngles = new Vector3(0, target, 0);
             }
