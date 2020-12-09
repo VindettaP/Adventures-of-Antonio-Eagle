@@ -9,6 +9,10 @@ Lines 319 to 393 are written with the help of a Unity forums post, although it r
 
 Level.unity was my design.
 I wrote EnemyAI.cs, RoomTrigger.cs, DestroyRobot.cs, Bird.cs, Finish.cs, PitTriiger.cs, SpawnStairs.cs, and the beginnings of UnlockGrapple, UnlockDoubleJump, UnlockDash.
+I wrote the victory script from scratch and SettingsMenu was based on a youtube tutorial on video settings.
+EnemyAI was based on a youtube tutorial on enemy AI and navmeshes.
+Every other script I wrote was written from scratch.
+I added animations and events regarding the enemies and bird.
 -Vincent
 
 
