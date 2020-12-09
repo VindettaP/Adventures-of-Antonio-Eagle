@@ -23,4 +23,5 @@ I wrote a lot of Grapple.cs, most things aside from lines 58-64, basing the code
 I made the PCGLevel.unity scene, which houses our time trial level
 I fixed the UI's in game to scale with resolution, including UI in level.unity, mainmenu.unity, and PCGlevel.unity
 I wrote MainMenuHandler.cs, used for handling button presses in menu, and Goal.cs, used for goal in PCGLevel
+I also handled the Player's animation and made the player_controller.controller animation controller
 - Sam
