@@ -5132,9 +5132,9 @@ MonoBehaviour:
   timeBetweenJumps: 1
   drag: 0.25
   airDrag: 0.02
-  doubleJumpUnlocked: 0
-  grappleUnlocked: 0
-  dashUnlocked: 0
+  doubleJumpUnlocked: 1
+  grappleUnlocked: 1
+  dashUnlocked: 1
   walkStep: {fileID: 8300000, guid: ebf0f362fa4996a44a3ca0d417364918, type: 3}
   runStep: {fileID: 8300000, guid: b8375d39273e40f47b3be704c90a2653, type: 3}
   jump: {fileID: 8300000, guid: b52e151711358504e86d487a182fefd6, type: 3}

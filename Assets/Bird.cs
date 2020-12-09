@@ -9,6 +9,7 @@ public class Bird : MonoBehaviour
     public Transform player;
     public LayerMask ground, whatisplayer;
     public float enemyHealth;
+    public GameObject screech;
 
     //Idle
     public Vector3 walkStart;
@@ -39,6 +40,7 @@ public class Bird : MonoBehaviour
         playerInSight = Physics.CheckSphere(transform.position, sight, whatisplayer.value);
 
         if(playerInSight) {
+            screech.GetComponent<AudioSource>().Play();
             turnAround();
             playerInSight = false;
         }
