@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class mouseLook : MonoBehaviour
 {
-    public float mouseSensitivity = 100f;
+    public float mouseSensitivity;
     public float thirdPersonMinAngle = -12.0f; // MUST BE A NEGATIVE ANGLE
     public float thirdPersonMaxAngle = 35.0f;
     public Transform playerBody;

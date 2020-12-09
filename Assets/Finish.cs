@@ -7,6 +7,7 @@ public class Finish : MonoBehaviour
     // Start is called before the first frame update
     private Collider end;
     public GameObject endScreen;
+    public GameObject victory;
     void Awake()
     {
         end = gameObject.GetComponent<BoxCollider>();
@@ -16,6 +17,7 @@ public class Finish : MonoBehaviour
     // Update is called once per frame
     void OnTriggerEnter(Collider other){
         if(other.name == "PlayerBody"){
+            victory.gameObject.GetComponent<AudioSource>().Play();
             endScreen.SetActive(true);
             Destroy(other.gameObject);
             Cursor.lockState = CursorLockMode.None;

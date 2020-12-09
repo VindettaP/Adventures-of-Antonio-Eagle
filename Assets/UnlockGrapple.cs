@@ -7,6 +7,7 @@ public class UnlockGrapple : MonoBehaviour
     public SphereCollider trigger;
     public GameObject wall;
     private Vector3 velocity = Vector3.zero;
+    public GameObject unlockGrapple;
     // Start is called before the first frame update
 
     Vector3 activated;
@@ -30,7 +31,9 @@ public class UnlockGrapple : MonoBehaviour
     void OnTriggerEnter(Collider other){
         if(other.name == "PlayerBody"){
             triggered = true;
+            unlockGrapple.GetComponent<AudioSource>().Play();
             gameObject.GetComponent<MeshRenderer>().enabled = false;
+            gameObject.GetComponent<SphereCollider>().enabled = false;
             other.GetComponent<player>().grappleUnlocked = true;
         }
     }
