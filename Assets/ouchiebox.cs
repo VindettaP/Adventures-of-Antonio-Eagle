@@ -20,15 +20,8 @@ public class ouchiebox : MonoBehaviour
     void OnTriggerEnter(Collider other)
 {
 if (other.gameObject.tag == "Player") {
-    player cs = other.gameObject.GetComponent<player>();
-    bool djunlock = cs.doubleJumpUnlocked;
-    bool grunlock = cs.grappleUnlocked;
-    bool daunlock = cs.dashUnlocked;
     Destroy (other.gameObject);
-    GameObject newPlayer = Instantiate(playerPrefab, checkpoint.transform.position, checkpoint.transform.rotation);
-    newPlayer.GetComponent<player>().doubleJumpUnlocked = djunlock;
-    newPlayer.GetComponent<player>().grappleUnlocked = grunlock;
-    newPlayer.GetComponent<player>().dashUnlocked = daunlock;
+    Instantiate(playerPrefab, checkpoint.transform.position, checkpoint.transform.rotation);
 }
 }
 

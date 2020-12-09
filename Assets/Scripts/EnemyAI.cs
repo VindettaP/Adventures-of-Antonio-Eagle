@@ -14,6 +14,8 @@ public class EnemyAI : MonoBehaviour
     public Vector3 walkStart;
     bool walkStartSet;
     public float walkRange;
+    public GameObject sightSound;
+    public GameObject deathSound;
 
     private Animator animation_controller;
     private float vel;
@@ -38,11 +40,18 @@ public class EnemyAI : MonoBehaviour
     {
         playerInSight = Physics.CheckSphere(transform.position, sight, whatisplayer.value);
 
+        if(enemyHealth == 0){
+            deathSound.GetComponent<AudioSource>().Play();
+            animation_controller.SetBool("dead", true);
+            agent.isStopped = true;
+        }
+
         if(!playerInSight){
             animation_controller.SetBool("aggrod", false);
             patrolling();
         } 
         if(playerInSight) {
+            sightSound.GetComponent<AudioSource>().Play();
             animation_controller.SetBool("aggrod", true);
             chasePlayer();
         }

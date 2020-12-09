@@ -5,6 +5,8 @@ using UnityEngine;
 public class Grapple : MonoBehaviour
 {
     public LayerMask grappleAble;
+
+    public LayerMask Enemy;
     public Transform grappleTip, cam, player;
     public float grappleDistance = 100f;
     public bool grappling = false;
@@ -12,6 +14,7 @@ public class Grapple : MonoBehaviour
     public AudioSource a_source;
     public AudioClip grappleSound;
     public bool grappleUnlocked = false;
+    private bool enemyHit = false;
 
     private LineRenderer lr;
     
@@ -51,6 +54,17 @@ public class Grapple : MonoBehaviour
     void StartGrapple()
     {
         RaycastHit hit;
+        if (Physics.Raycast(cam.position, cam.forward, out hit, grappleDistance, Enemy))
+        {
+            if(hit.collider.gameObject.tag == "Enemy"){
+                grapplePoint = hit.point;
+                enemyHit = true;
+                hit.collider.gameObject.GetComponent<EnemyAI>().enemyHealth = 0;
+                float distanceFromPoint = Vector3.Distance(player.position, grapplePoint);
+                lr.positionCount = 2;
+                a_source.PlayOneShot(grappleSound);
+            }
+        }
         if (Physics.Raycast(cam.position, cam.forward, out hit, grappleDistance, grappleAble))
         {
             grapplePoint = hit.point;
