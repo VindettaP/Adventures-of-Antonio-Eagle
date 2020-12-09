@@ -6,3 +6,8 @@ In player.cs:
 Lines 155-185 are written from scratch.
 Lines 319 to 393 are written with the help of a Unity forums post, although it required very heavy modifications to work in our movement system.
 -Jerry
+
+Level.unity was my design.
+I wrote EnemyAI.cs, RoomTrigger.cs, DestroyRobot.cs, Bird.cs, Finish.cs, PitTriiger.cs, SpawnStairs.cs, and the beginnings of UnlockGrapple, UnlockDoubleJump, UnlockDash.
+-Vincent
+
